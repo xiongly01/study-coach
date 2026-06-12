@@ -1,0 +1,17 @@
+pyproject.toml
+src/study_coach/__init__.py
+src/study_coach/cli.py
+src/study_coach/examiner.py
+src/study_coach/models.py
+src/study_coach/planner.py
+src/study_coach/reporter.py
+src/study_coach/school_advisor.py
+src/study_coach/store.py
+src/study_coach/supervisor.py
+src/study_coach/tracker.py
+src/study_coach.egg-info/PKG-INFO
+src/study_coach.egg-info/SOURCES.txt
+src/study_coach.egg-info/dependency_links.txt
+src/study_coach.egg-info/entry_points.txt
+src/study_coach.egg-info/requires.txt
+src/study_coach.egg-info/top_level.txt

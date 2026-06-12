@@ -1,0 +1,2 @@
+[console_scripts]
+study-coach = study_coach.cli:app
