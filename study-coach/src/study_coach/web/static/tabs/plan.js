@@ -1,10 +1,101 @@
-/* study-coach — Plan tab: milestones and plan history */
+/* study-coach — Plan tab: yearly/monthly cascade, milestones, and plan history */
 
 const Plan = {
   async load() {
+    this.loadYearly();
+    this.loadMonthly();
+    this.loadDrift();
     this.loadMilestones();
     this.loadHistory();
   },
+
+  // ---- Yearly cascade ----
+
+  async loadYearly() {
+    const data = await api("/api/yearly");
+    const container = document.getElementById("plan-yearly");
+    container.innerHTML = "";
+    const plan = data.plan;
+    if (!plan || !plan.phases || plan.phases.length === 0) {
+      container.innerHTML = '<div style="color:var(--text-dim);font-size:0.85rem">暂无年度计划</div>';
+      return;
+    }
+    plan.phases.forEach(p => {
+      const wstr = Object.entries(p.weight_overrides || {})
+        .map(([k, v]) => `${k} ${Math.round(v * 100)}%`).join(" · ");
+      const item = document.createElement("div");
+      item.className = "history-item";
+      item.innerHTML = `
+        <div class="hi-date">${p.name}</div>
+        <div class="hi-summary">${p.start} ~ ${p.end}<br>${wstr || "—"}</div>
+      `;
+      container.appendChild(item);
+    });
+  },
+
+  async regenerateYearly() {
+    await api("/api/yearly/regenerate", "POST");
+    showToast("已按考试日期重建年度阶段");
+    this.loadYearly();
+  },
+
+  // ---- Monthly plan ----
+
+  async loadMonthly() {
+    const data = await api("/api/monthly");
+    const container = document.getElementById("plan-monthly");
+    if (!data.plan) {
+      container.innerHTML = '<div style="color:var(--text-dim);font-size:0.85rem">本月暂无月度计划，点击"生成月度"</div>';
+      return;
+    }
+    const p = data.plan;
+    const wstr = Object.entries(p.subject_weights || {})
+      .map(([k, v]) => `${k} ${Math.round(v * 100)}%`).join(" · ");
+    let html = `<div class="history-item"><div class="hi-date">${p.month} · ${p.phase || "—"}</div>`;
+    html += `<div class="hi-summary">${wstr}</div></div>`;
+    if (p.goals && p.goals.length) {
+      html += p.goals.map(g =>
+        `<div class="history-item"><div class="hi-summary">🎯 [${g.subject}] ${g.goal}</div></div>`
+      ).join("");
+    }
+    const src = p.generated_from || {};
+    if (src.source || src.rationale) {
+      html += `<div class="hi-summary" style="color:var(--text-dim)">来源：${src.source || "—"}${src.rationale ? " · " + src.rationale : ""}</div>`;
+    }
+    container.innerHTML = html;
+  },
+
+  async generateMonthly() {
+    const data = await api("/api/monthly/generate", "POST");
+    if (data.ok) {
+      showToast("月度计划已生成");
+      this.loadMonthly();
+    } else {
+      showToast(data.error || "生成失败");
+    }
+  },
+
+  // ---- Drift signals ----
+
+  async loadDrift() {
+    const data = await api("/api/drift");
+    const panel = document.getElementById("plan-drift-panel");
+    const container = document.getElementById("plan-drift");
+    if (!data.signals || data.signals.length === 0) {
+      panel.style.display = "none";
+      return;
+    }
+    panel.style.display = "block";
+    const icon = { high: "🔴", medium: "🟡", low: "🟢" };
+    container.innerHTML = data.signals.map(s =>
+      `<div class="history-item">
+        <div class="hi-date">${icon[s.severity] || "⚪"} ${s.type}</div>
+        <div class="hi-summary">${s.detail}</div>
+       </div>`
+    ).join("");
+  },
+
+  // ---- Milestones ----
 
   async loadMilestones() {
     const data = await api("/api/milestones");

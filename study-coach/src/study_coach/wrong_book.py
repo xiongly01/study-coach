@@ -6,7 +6,14 @@ from datetime import date, timedelta
 from typing import Any
 
 from .ai import analyze_question_image, is_api_key_configured
-from .models import REVIEW_INTERVALS, ReviewRecord, WrongQuestion
+from .kp_index import (
+    build_kp_index,
+    canonicalize_kps,
+    mastery_lookup,
+    normalize_kp,
+    rank_weak_kps,
+)
+from .models import REVIEW_INTERVALS, KnowledgePointStat, ReviewRecord, WrongQuestion
 from .store import Store
 
 
@@ -33,7 +40,9 @@ def add_from_image(
         topic=analysis.get("topic", ""),
         question_text=analysis.get("question_text", ""),
         answer=analysis.get("answer", ""),
-        knowledge_points=analysis.get("knowledge_points", []),
+        knowledge_points=canonicalize_kps(
+            analysis.get("knowledge_points", []), store.load_kp_canon()
+        ),
         difficulty=analysis.get("difficulty", 3),
         source=source,
         created_at=today,
@@ -68,7 +77,9 @@ def add_manual(
         topic=topic,
         question_text=question_text,
         answer=answer,
-        knowledge_points=knowledge_points or [],
+        knowledge_points=canonicalize_kps(
+            knowledge_points or [], store.load_kp_canon()
+        ),
         difficulty=difficulty,
         source=source,
         created_at=today,
@@ -154,6 +165,166 @@ def get_today_reviews(store: Store) -> list[WrongQuestion]:
     today = date.today().isoformat()
     questions = store.load_wrong_questions()
     return [q for q in questions if q.next_review_date <= today and q.mastery_level < 5]
+
+
+# Estimated minutes a single review consumes; used to cap a session to a budget.
+REVIEW_MINUTES_PER_ITEM = 8
+
+
+def score_review_candidates(store: Store) -> list[dict[str, Any]]:
+    """Score every not-yet-mastered question for review priority.
+
+    Ranking blends knowledge-point weakness (lower mastery = more urgent) with
+    due status (scheduled cards weighted higher). Returned unsorted so callers
+    (deterministic picker or the ReviewPicker agent) can re-order or curate.
+    """
+    today = date.today().isoformat()
+    questions = store.load_wrong_questions()
+    active = [q for q in questions if q.mastery_level < 5]
+
+    index = build_kp_index(questions)
+    mastery = mastery_lookup(index)
+
+    candidates: list[dict[str, Any]] = []
+    for q in active:
+        due = q.next_review_date <= today
+        if q.knowledge_points:
+            levels = [mastery.get((kp, q.subject), 0.5) for kp in q.knowledge_points]
+            kp_mastery = sum(levels) / len(levels)
+        else:
+            # Untagged questions get a neutral mastery so they rank by due status only.
+            kp_mastery = 0.5
+        due_factor = 1.0 if due else 0.3
+        score = (1.0 - kp_mastery) * 0.6 + due_factor * 0.4
+        candidates.append({
+            "question_id": q.id,
+            "subject": q.subject,
+            "knowledge_points": list(q.knowledge_points),
+            "mastery_level": q.mastery_level,
+            "due": due,
+            "kp_mastery": round(kp_mastery, 3),
+            "score": round(score, 3),
+        })
+    return candidates
+
+
+def pick_reviews_kp_aware(
+    store: Store, time_budget_minutes: int = 60
+) -> dict[str, Any]:
+    """Select today's review set ranked by knowledge-point weakness.
+
+    Caps the deterministic ranking to the time budget via
+    REVIEW_MINUTES_PER_ITEM. Output targets the weakest knowledge first; due
+    cards compete with weak-but-not-due cards rather than getting a free slot.
+    """
+    candidates = score_review_candidates(store)
+    ranked = sorted(candidates, key=lambda c: c["score"], reverse=True)
+
+    max_items = max(1, time_budget_minutes // REVIEW_MINUTES_PER_ITEM)
+    selected_ids = {c["question_id"] for c in ranked[:max_items]}
+
+    # Attach the full question payload for the selected items.
+    by_id = {q.id: q for q in store.load_wrong_questions()}
+    items = []
+    for c in ranked[:max_items]:
+        q = by_id.get(c["question_id"])
+        if q is not None:
+            items.append({**c, "question": q.to_dict()})
+
+    return {
+        "items": items,
+        "count": len(items),
+        "candidates_total": len(candidates),
+        "time_budget_minutes": time_budget_minutes,
+        "minutes_per_item": REVIEW_MINUTES_PER_ITEM,
+    }
+
+
+def get_knowledge_point_index(store: Store) -> list[dict[str, Any]]:
+    """Return all knowledge points ranked from weakest to strongest."""
+    questions = store.load_wrong_questions()
+    index = build_kp_index(questions)
+    return [s.to_dict() for s in rank_weak_kps(index)]
+
+
+def suggest_kp_merges(store: Store) -> dict[str, Any]:
+    """Ask the agent to propose alias -> canonical merges for near-duplicate KPs.
+
+    Returns {"merges": [{alias, canonical, reason}], "source"}. Falls back to an
+    empty list when AI is unavailable — semantic merging is never guessed
+    deterministically, since substring heuristics are unreliable for Chinese.
+    """
+    from .ai import agent_suggest_kp_merges
+
+    index = build_kp_index(store.load_wrong_questions())
+    names = [s.name for s in index]
+    result = agent_suggest_kp_merges({"knowledge_points": names})
+    return {"merges": result["merges"], "source": result["source"]}
+
+
+def apply_kp_merges(store: Store, merges: dict[str, str]) -> dict[str, Any]:
+    """Merge alias -> canonical pairs into the canon dict and rewrite stored tags.
+
+    Existing canon is preserved and extended. Every stored wrong question's tags
+    are re-canonicalized so historical data converges on the same names.
+    """
+    canon = store.load_kp_canon()
+    for alias, canonical in merges.items():
+        canon[normalize_kp(alias)] = normalize_kp(canonical)
+    store.save_kp_canon(canon)
+
+    questions = store.load_wrong_questions()
+    rewritten = 0
+    for q in questions:
+        new_kps = canonicalize_kps(q.knowledge_points, canon)
+        if new_kps != q.knowledge_points:
+            q.knowledge_points = new_kps
+            store.update_wrong_question(q)
+            rewritten += 1
+
+    return {"canon_size": len(canon), "rewritten": rewritten}
+
+
+def pick_reviews_with_agent(
+    store: Store, time_budget_minutes: int = 60
+) -> dict[str, Any]:
+    """Agent-curated review set with deterministic fallback.
+
+    Scores all candidates deterministically, then asks the ReviewPicker agent to
+    curate the final ordering. The agent falls back to the score ranking when AI
+    is unavailable, so this always returns a usable set.
+    """
+    # Lazy import avoids a wrong_book<->ai load-time edge if ai grows dependencies.
+    from .ai import agent_pick_reviews
+
+    candidates = score_review_candidates(store)
+    max_items = max(1, time_budget_minutes // REVIEW_MINUTES_PER_ITEM)
+
+    result = agent_pick_reviews({"candidates": candidates, "max_items": max_items})
+
+    by_id = {q.id: q for q in store.load_wrong_questions()}
+    cand_by_id = {c["question_id"]: c for c in candidates}
+    items = []
+    for qid in result["question_ids"]:
+        q = by_id.get(qid)
+        c = cand_by_id.get(qid, {})
+        if q is not None:
+            items.append({
+                "question_id": qid,
+                "question": q.to_dict(),
+                "score": c.get("score", 0.0),
+                "due": c.get("due", False),
+                "kp_mastery": c.get("kp_mastery", 0.0),
+            })
+
+    return {
+        "items": items,
+        "count": len(items),
+        "candidates_total": len(candidates),
+        "source": result["source"],
+        "rationale": result["rationale"],
+        "time_budget_minutes": time_budget_minutes,
+    }
 
 
 def submit_review(

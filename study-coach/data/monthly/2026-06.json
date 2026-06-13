@@ -1,0 +1,31 @@
+{
+  "month": "2026-06",
+  "phase": "基础阶段",
+  "subject_weights": {
+    "数学一": 0.4,
+    "408": 0.3,
+    "英语一": 0.2,
+    "政治": 0.1
+  },
+  "goals": [],
+  "generated_at": "2026-06-14",
+  "generated_from": {
+    "source": "fallback",
+    "rationale": "AI 调用失败（BadRequestError），使用基线",
+    "base": {
+      "数学一": 0.4,
+      "408": 0.3,
+      "英语一": 0.2,
+      "政治": 0.1
+    },
+    "nudges": {
+      "数学一": 0.0,
+      "408": 0.0,
+      "英语一": 0.0,
+      "政治": 0.0
+    },
+    "adherence_rate": 0.0,
+    "subject_deficit": {},
+    "top_weak_kps": []
+  }
+}

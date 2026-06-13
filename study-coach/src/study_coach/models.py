@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import uuid
 from dataclasses import dataclass, field
-from datetime import date, datetime, time
+from datetime import date, datetime, time, timedelta
 from typing import Any
 
 
@@ -118,6 +118,196 @@ class LongtermPlan:
                     subjects=[],
                 ),
             ]
+        )
+
+
+# ---------------------------------------------------------------------------
+# Plan cascade: Yearly -> Monthly (sits above the milestone / daily layers)
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class YearlyPhase:
+    """A named window of the preparation timeline (e.g. 基础 / 强化 / 冲刺)."""
+
+    name: str = ""
+    start: str = ""  # ISO date, inclusive
+    end: str = ""  # ISO date, inclusive
+    focus_subjects: list[str] = field(default_factory=list)
+    # Per-subject time weights for this phase; normalized at consumption time.
+    weight_overrides: dict[str, float] = field(default_factory=dict)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "name": self.name,
+            "start": self.start,
+            "end": self.end,
+            "focus_subjects": self.focus_subjects,
+            "weight_overrides": self.weight_overrides,
+        }
+
+    @classmethod
+    def from_dict(cls, d: dict[str, Any]) -> YearlyPhase:
+        return cls(**{k: v for k, v in d.items() if k in cls.__dataclass_fields__})
+
+    def contains(self, d: date) -> bool:
+        """True when d falls inside [start, end]."""
+        try:
+            return date.fromisoformat(self.start) <= d <= date.fromisoformat(self.end)
+        except ValueError:
+            return False
+
+
+@dataclass
+class YearlyPlan:
+    """Top-of-cascade constraints: exam target, timeline phases, per-subject goals."""
+
+    exam_date: str = "2026-12-26"
+    target_scores: dict[str, int] = field(default_factory=dict)
+    phases: list[YearlyPhase] = field(default_factory=list)
+    created_at: str = ""
+    updated_at: str = ""
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "exam_date": self.exam_date,
+            "target_scores": self.target_scores,
+            "phases": [p.to_dict() for p in self.phases],
+            "created_at": self.created_at,
+            "updated_at": self.updated_at,
+        }
+
+    @classmethod
+    def from_dict(cls, d: dict[str, Any]) -> YearlyPlan:
+        phases = [YearlyPhase.from_dict(p) for p in d.get("phases", [])]
+        return cls(
+            exam_date=d.get("exam_date", "2026-12-26"),
+            target_scores=d.get("target_scores", {}),
+            phases=phases,
+            created_at=d.get("created_at", ""),
+            updated_at=d.get("updated_at", ""),
+        )
+
+    @classmethod
+    def default_plan(
+        cls, exam_date: str = "2026-12-26", subjects: list[str] | None = None
+    ) -> YearlyPlan:
+        """Derive default phases anchored to the exam date.
+
+        Windows are exam-relative so the cascade stays valid as the date moves.
+        Phase weights shift the subject mix across the timeline.
+        """
+        try:
+            exam = date.fromisoformat(exam_date)
+        except ValueError:
+            exam = date.fromisoformat("2026-12-26")
+
+        math, eng, pol, cs = "数学一", "英语一", "政治", "408"
+        phases = [
+            YearlyPhase(
+                name="基础阶段",
+                start=(exam - timedelta(days=200)).isoformat(),
+                end=(exam - timedelta(days=100)).isoformat(),
+                focus_subjects=[math, cs],
+                weight_overrides={math: 0.40, cs: 0.30, eng: 0.20, pol: 0.10},
+            ),
+            YearlyPhase(
+                name="强化阶段",
+                start=(exam - timedelta(days=100)).isoformat(),
+                end=(exam - timedelta(days=35)).isoformat(),
+                focus_subjects=[math, cs, eng],
+                weight_overrides={math: 0.35, cs: 0.30, eng: 0.20, pol: 0.15},
+            ),
+            YearlyPhase(
+                name="冲刺阶段",
+                start=(exam - timedelta(days=35)).isoformat(),
+                end=exam.isoformat(),
+                focus_subjects=[pol, eng],
+                weight_overrides={math: 0.30, cs: 0.25, eng: 0.20, pol: 0.25},
+            ),
+        ]
+        today = date.today().isoformat()
+        return cls(
+            exam_date=exam_date,
+            target_scores={s: 0 for s in (subjects or [])},
+            phases=phases,
+            created_at=today,
+            updated_at=today,
+        )
+
+    def phase_for_date(self, d: date | str) -> YearlyPhase | None:
+        """Return the phase whose window contains d.
+
+        Falls back to the first phase when d precedes the timeline, and to the
+        last phase when d is past it, so a ref date at a month boundary still
+        resolves instead of returning None.
+        """
+        if isinstance(d, str):
+            try:
+                d = date.fromisoformat(d)
+            except ValueError:
+                return None
+        if not self.phases:
+            return None
+        for p in self.phases:
+            if p.contains(d):
+                return p
+        # Before the first phase -> treat as lead-in to the first phase.
+        first = self.phases[0]
+        try:
+            if d < date.fromisoformat(first.start):
+                return first
+        except ValueError:
+            pass
+        # Past the last phase -> hold on the final phase.
+        return self.phases[-1]
+
+
+@dataclass
+class MonthlyGoal:
+    subject: str = ""
+    goal: str = ""
+
+    def to_dict(self) -> dict[str, Any]:
+        return {"subject": self.subject, "goal": self.goal}
+
+    @classmethod
+    def from_dict(cls, d: dict[str, Any]) -> MonthlyGoal:
+        return cls(**{k: v for k, v in d.items() if k in cls.__dataclass_fields__})
+
+
+@dataclass
+class MonthlyPlan:
+    """A month's allocation: phase reference, normalized subject weights, goals."""
+
+    month: str = ""  # YYYY-MM
+    phase: str = ""
+    subject_weights: dict[str, float] = field(default_factory=dict)
+    goals: list[MonthlyGoal] = field(default_factory=list)
+    generated_at: str = ""
+    # Audit snapshot of the signals that produced this plan.
+    generated_from: dict[str, Any] = field(default_factory=dict)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "month": self.month,
+            "phase": self.phase,
+            "subject_weights": self.subject_weights,
+            "goals": [g.to_dict() for g in self.goals],
+            "generated_at": self.generated_at,
+            "generated_from": self.generated_from,
+        }
+
+    @classmethod
+    def from_dict(cls, d: dict[str, Any]) -> MonthlyPlan:
+        goals = [MonthlyGoal.from_dict(g) for g in d.get("goals", [])]
+        return cls(
+            month=d.get("month", ""),
+            phase=d.get("phase", ""),
+            subject_weights=d.get("subject_weights", {}),
+            goals=goals,
+            generated_at=d.get("generated_at", ""),
+            generated_from=d.get("generated_from", {}),
         )
 
 
@@ -348,3 +538,40 @@ class ReviewRecord:
     @classmethod
     def from_dict(cls, d: dict[str, Any]) -> ReviewRecord:
         return cls(**{k: v for k, v in d.items() if k in cls.__dataclass_fields__})
+
+
+# ---------------------------------------------------------------------------
+# Knowledge-point mastery index (derived from wrong questions + reviews)
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class KnowledgePointStat:
+    """Aggregated mastery for a single knowledge point.
+
+    Derived, not authored: computed by aggregating WrongQuestion records that
+    share this knowledge-point tag. mastery_level is normalized to [0, 1] from
+    the per-question 0-5 mastery scale, so 1.0 means every tagged question has
+    reached the top mastery tier.
+    """
+
+    name: str = ""
+    subject: str = ""
+    count: int = 0  # number of wrong questions tagged with this KP
+    total_mastery: float = 0.0  # sum of per-question mastery levels (0-5 each)
+    avg_mastery: float = 0.0  # 0-5
+    mastery_level: float = 0.0  # 0-1, normalized
+    last_wrong_date: str = ""
+    wrong_question_ids: list[str] = field(default_factory=list)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "name": self.name,
+            "subject": self.subject,
+            "count": self.count,
+            "total_mastery": self.total_mastery,
+            "avg_mastery": self.avg_mastery,
+            "mastery_level": self.mastery_level,
+            "last_wrong_date": self.last_wrong_date,
+            "wrong_question_ids": self.wrong_question_ids,
+        }

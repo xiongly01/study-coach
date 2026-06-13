@@ -33,12 +33,18 @@ from ..planner import (
     add_task_to_plan,
     check_milestones,
     create_today_plan,
+    generate_monthly_plan,
     suggest_daily_tasks,
     toggle_milestone,
 )
 from ..reporter import generate_weekly_report
 from ..store import Store
-from ..supervisor import adjust_plan, check_compliance, get_status as _get_status
+from ..supervisor import (
+    adjust_plan,
+    check_compliance,
+    detect_drift,
+    get_status as _get_status,
+)
 
 STATIC_DIR = Path(__file__).parent / "static"
 
@@ -225,6 +231,65 @@ async def toggle_milestone_status(milestone_id: str):
         return JSONResponse({"error": "not found"}, status_code=404)
     store.save_longterm_plan(lt)
     return {"ok": True}
+
+
+# ---------------------------------------------------------------------------
+# API: Plan cascade (yearly -> monthly)
+# ---------------------------------------------------------------------------
+
+
+@app.get("/api/yearly")
+async def get_yearly_plan():
+    """Return the yearly plan, deriving a default from config when absent."""
+    store = _store()
+    plan = store.load_yearly_plan()
+    return {"plan": plan.to_dict()}
+
+
+@app.post("/api/yearly/regenerate")
+async def regenerate_yearly_plan():
+    """Rebuild the default yearly phases anchored to the configured exam date."""
+    store = _store()
+    config = store.load_config()
+    from ..models import YearlyPlan
+    plan = YearlyPlan.default_plan(config.exam_date, config.subjects)
+    store.save_yearly_plan(plan)
+    return {"ok": True, "plan": plan.to_dict()}
+
+
+@app.get("/api/monthly")
+async def get_monthly_plan(month: str = ""):
+    """Return a month's plan. month is YYYY-MM; defaults to current month."""
+    store = _store()
+    from datetime import date as _date
+    target = month or _date.today().strftime("%Y-%m")
+    plan = store.load_monthly_plan(target)
+    if plan is None:
+        return {"plan": None, "month": target}
+    return {"plan": plan.to_dict(), "month": target}
+
+
+@app.get("/api/monthly/all")
+async def list_monthly_plans():
+    store = _store()
+    return {"plans": [p.to_dict() for p in store.list_monthly_plans()]}
+
+
+@app.post("/api/monthly/generate")
+async def generate_monthly(month: str = ""):
+    """Generate (or regenerate) a month's plan via the cascade + Planner agent."""
+    store = _store()
+    from datetime import date as _date
+    target = month or _date.today().strftime("%Y-%m")
+    plan = generate_monthly_plan(store, target)
+    return {"ok": True, "plan": plan.to_dict()}
+
+
+@app.get("/api/drift")
+async def get_drift():
+    """Return drift signals that warrant re-planning."""
+    store = _store()
+    return detect_drift(store)
 
 
 # ---------------------------------------------------------------------------
@@ -468,6 +533,41 @@ async def wrong_book_stats():
 async def today_reviews():
     questions = wb.get_today_reviews(_store())
     return {"questions": [q.to_dict() for q in questions], "count": len(questions)}
+
+
+@app.get("/api/wrong-book/review/pick")
+async def pick_reviews(budget: int = 40):
+    """Knowledge-point-driven review set, ranked by weakness (deterministic)."""
+    return wb.pick_reviews_kp_aware(_store(), time_budget_minutes=budget)
+
+
+@app.post("/api/wrong-book/review/agent-pick")
+async def agent_pick_reviews(body: dict[str, Any] = None):
+    """Agent-curated review set with deterministic fallback."""
+    body = body or {}
+    budget = int(body.get("budget", 40))
+    return wb.pick_reviews_with_agent(_store(), time_budget_minutes=budget)
+
+
+@app.get("/api/wrong-book/knowledge-points")
+async def knowledge_points():
+    """All knowledge points ranked from weakest to strongest."""
+    return {"knowledge_points": wb.get_knowledge_point_index(_store())}
+
+
+@app.get("/api/wrong-book/knowledge-points/merges")
+async def kp_merge_suggestions():
+    """Agent-proposed alias -> canonical merges for near-duplicate KPs."""
+    return wb.suggest_kp_merges(_store())
+
+
+@app.post("/api/wrong-book/knowledge-points/canon")
+async def apply_kp_canon(body: dict[str, Any]):
+    """Apply alias -> canonical merges and rewrite stored tags."""
+    merges = body.get("merges", {}) if isinstance(body, dict) else {}
+    if not isinstance(merges, dict):
+        return JSONResponse({"error": "merges must be an object"}, status_code=400)
+    return wb.apply_kp_merges(_store(), merges)
 
 
 @app.get("/api/wrong-book/{question_id}")

@@ -22,10 +22,12 @@ from .models import (
     Config,
     DailyPlan,
     LongtermPlan,
+    MonthlyPlan,
     Question,
     ReviewRecord,
     TestResult,
     WrongQuestion,
+    YearlyPlan,
 )
 
 
@@ -39,8 +41,9 @@ class Store:
         self.daily_dir = self.root / "daily"
         self.reports_dir = self.root / "reports"
         self.tests_dir = self.root / "tests"
+        self.monthly_dir = self.root / "monthly"
 
-        for d in [self.daily_dir, self.reports_dir, self.tests_dir]:
+        for d in [self.daily_dir, self.reports_dir, self.tests_dir, self.monthly_dir]:
             d.mkdir(parents=True, exist_ok=True)
 
     # ---- helpers ----
@@ -85,6 +88,53 @@ class Store:
 
     def save_longterm_plan(self, plan: LongtermPlan) -> None:
         self._write_json(self.root / "longterm_plan.json", plan.to_dict())
+
+    # ---- Yearly Plan ----
+
+    def load_yearly_plan(self) -> YearlyPlan:
+        """Load the yearly plan, deriving a default from config if absent."""
+        data = self._read_json(self.root / "yearly_plan.json")
+        if data is None:
+            config = self.load_config()
+            return YearlyPlan.default_plan(config.exam_date, config.subjects)
+        return YearlyPlan.from_dict(data)
+
+    def save_yearly_plan(self, plan: YearlyPlan) -> None:
+        self._write_json(self.root / "yearly_plan.json", plan.to_dict())
+
+    def yearly_plan_exists(self) -> bool:
+        return (self.root / "yearly_plan.json").exists()
+
+    # ---- Monthly Plans ----
+
+    def _monthly_path(self, month: str) -> Path:
+        return self.monthly_dir / f"{month}.json"
+
+    def load_monthly_plan(self, month: str | None = None) -> MonthlyPlan | None:
+        """Load a month's plan. month is YYYY-MM; defaults to current month."""
+        if month is None:
+            month = date.today().strftime("%Y-%m")
+        data = self._read_json(self._monthly_path(month))
+        if data is None:
+            return None
+        return MonthlyPlan.from_dict(data)
+
+    def save_monthly_plan(self, plan: MonthlyPlan) -> None:
+        self._write_json(self._monthly_path(plan.month), plan.to_dict())
+
+    def monthly_plan_exists(self, month: str | None = None) -> bool:
+        if month is None:
+            month = date.today().strftime("%Y-%m")
+        return self._monthly_path(month).exists()
+
+    def list_monthly_plans(self) -> list[MonthlyPlan]:
+        """Return all stored monthly plans sorted by month ascending."""
+        plans: list[MonthlyPlan] = []
+        for path in sorted(self.monthly_dir.glob("*.json")):
+            data = self._read_json(path)
+            if data is not None:
+                plans.append(MonthlyPlan.from_dict(data))
+        return plans
 
     # ---- Daily Plans ----
 
@@ -165,6 +215,21 @@ class Store:
         path = self.reports_dir / filename
         self._write_text(path, content)
         return path
+
+    # ---- Lifestyle routines ----
+
+    def load_skincare_routine(self) -> dict[str, Any] | None:
+        return self._read_json(self.root / "routines" / "skincare.json")
+
+    # ---- Knowledge-point canonical dictionary ----
+
+    def load_kp_canon(self) -> dict[str, str]:
+        """Return the alias -> canonical map, or {} if none configured."""
+        data = self._read_json(self.root / "kp_canon.json")
+        return data or {}
+
+    def save_kp_canon(self, canon: dict[str, str]) -> None:
+        self._write_json(self.root / "kp_canon.json", canon)
 
     # ---- Wrong Answer Notebook ----
 

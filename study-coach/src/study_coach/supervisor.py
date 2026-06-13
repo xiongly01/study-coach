@@ -5,9 +5,11 @@ from __future__ import annotations
 from datetime import date, timedelta
 from typing import Any
 
+from .kp_index import build_kp_index, rank_weak_kps
 from .models import Config, DailyPlan, LongtermPlan, Task
 from .planner import (
     _SUBJECT_WEIGHTS,
+    check_milestones,
     get_active_milestone,
     suggest_daily_tasks,
 )
@@ -105,6 +107,80 @@ def adjust_plan(store: Store) -> dict[str, Any]:
 
     store.save_config(config)
     return adjustments
+
+
+def detect_drift(store: Store, days: int = 7) -> dict[str, Any]:
+    """Detect drift signals that should trigger Planner re-planning.
+
+    All checks are deterministic. A non-empty signal list means the cascade has
+    drifted enough to warrant regenerating the monthly plan. Returns
+    {"signals": [...], "trigger_replan": bool}.
+    """
+    signals: list[dict[str, Any]] = []
+
+    # 1. Aggregate compliance below threshold (only when there is plan data).
+    compliance = check_compliance(store, days=days)
+    adherence = compliance.get("adherence_rate", 0.0)
+    has_plan_data = compliance.get("days_with_plan", 0) > 0
+    if has_plan_data and adherence < 0.5:
+        signals.append({
+            "type": "compliance_low",
+            "severity": "high",
+            "detail": f"近{days}天完成率 {adherence:.0%}",
+        })
+
+    # 2. A run of consecutive low-execution days (skip days with no plan).
+    plans = store.load_recent_plans(days)
+    streak = 0
+    max_streak = 0
+    for p in plans:
+        planned = p.total_planned_minutes()
+        if planned == 0:
+            streak = 0
+            continue
+        ratio = p.total_actual_minutes() / planned
+        if ratio < 0.5:
+            streak += 1
+            max_streak = max(max_streak, streak)
+        else:
+            streak = 0
+    if max_streak >= 3:
+        signals.append({
+            "type": "compliance_streak",
+            "severity": "medium",
+            "detail": f"连续 {max_streak} 天执行率偏低",
+        })
+
+    # 3. Overdue milestones.
+    longterm = store.load_longterm_plan()
+    for alert in check_milestones(longterm):
+        if alert["status"] == "overdue":
+            signals.append({
+                "type": "milestone_overdue",
+                "severity": "high",
+                "detail": f"{alert['milestone']} 逾期 {abs(alert['days'])} 天",
+            })
+
+    # 4. Knowledge points stuck at low mastery with recent errors.
+    cutoff = (date.today() - timedelta(days=14)).isoformat()
+    questions = store.load_wrong_questions()
+    index = build_kp_index(questions)
+    for stat in rank_weak_kps(index, limit=5):
+        if (
+            stat.mastery_level < 0.3
+            and stat.count >= 2
+            and stat.last_wrong_date >= cutoff
+        ):
+            signals.append({
+                "type": "weak_kp_stagnant",
+                "severity": "medium",
+                "detail": (
+                    f"{stat.name}（{stat.subject}）掌握度 "
+                    f"{stat.mastery_level:.0%}，{stat.count} 题未消化"
+                ),
+            })
+
+    return {"signals": signals, "trigger_replan": bool(signals)}
 
 
 def get_status(store: Store) -> dict[str, Any]:

@@ -90,6 +90,24 @@
       <!-- ===== PLAN TAB ===== -->
       <div class="tab-pane" id="tab-plan">
         <div class="plan-layout">
+          <section class="panel" id="plan-drift-panel" style="display:none">
+            <h2 class="section-title">⚠️ 漂移信号</h2>
+            <div id="plan-drift"></div>
+          </section>
+          <section class="panel">
+            <div class="section-header">
+              <h2 class="section-title">📅 年度阶段</h2>
+              <button class="btn btn-small" onclick="Plan.regenerateYearly()">重建阶段</button>
+            </div>
+            <div id="plan-yearly"></div>
+          </section>
+          <section class="panel">
+            <div class="section-header">
+              <h2 class="section-title">🗓️ 本月计划</h2>
+              <button class="btn btn-small" onclick="Plan.generateMonthly()">生成月度</button>
+            </div>
+            <div id="plan-monthly"></div>
+          </section>
           <section class="panel">
             <h2 class="section-title">🎯 里程碑</h2>
             <div class="milestone-list" id="plan-milestones"></div>
@@ -233,7 +251,14 @@
           <!-- Review view -->
           <div class="wb-subview" id="wb-review">
             <section class="panel">
-              <h2 class="section-title">🔄 今日复习</h2>
+              <div class="section-header">
+                <h2 class="section-title">🔄 今日复习（按知识点弱点）</h2>
+                <div style="display:flex;align-items:center;gap:0.4rem;font-size:0.8rem">
+                  <input type="number" id="wb-review-budget" value="40" min="10" step="10" style="width:54px">分钟
+                  <button class="btn btn-small" onclick="WrongBook.loadReview(false)">刷新</button>
+                  <button class="btn btn-accent btn-small" onclick="WrongBook.loadReview(true)">AI 精选</button>
+                </div>
+              </div>
               <div id="wb-review-cards" class="review-cards"></div>
             </section>
           </div>

@@ -19,6 +19,7 @@ from . import reporter
 from . import school_advisor as sa
 from . import supervisor
 from . import tracker
+from . import wrong_book as wb
 from .models import Config, DailyPlan, LongtermPlan, Question, Task, TestResult
 from .store import Store
 
@@ -413,6 +414,173 @@ def report(
         console.print(f"  完成率: {adjustments['adherence_rate']:.0%}")
         for a in adjustments["adjustments"]:
             console.print(f"  • {a}")
+
+
+# ---------------------------------------------------------------------------
+# yearly / monthly / review / drift — plan cascade & knowledge-point review
+# ---------------------------------------------------------------------------
+
+
+def _fmt_weights(weights: dict[str, float]) -> str:
+    return "  ".join(f"{k} {v:.0%}" for k, v in weights.items()) if weights else "—"
+
+
+@app.command()
+def yearly(
+    regenerate: bool = typer.Option(
+        False, "--regenerate", help="按考试日期重建默认阶段"
+    ),
+) -> None:
+    """查看年度计划（阶段划分 + 各阶段权重）。"""
+    store = _store()
+    _require_init(store)
+
+    if regenerate:
+        from .models import YearlyPlan
+        config = store.load_config()
+        yp = YearlyPlan.default_plan(config.exam_date, config.subjects)
+        store.save_yearly_plan(yp)
+        console.print("[green]✓ 已按考试日期重建年度阶段[/green]")
+
+    yp = store.load_yearly_plan()
+    table = Table(title=f"📅 年度计划（考试 {yp.exam_date}）")
+    table.add_column("阶段", style="bold")
+    table.add_column("起")
+    table.add_column("止")
+    table.add_column("侧重")
+    table.add_column("权重")
+
+    for p in yp.phases:
+        table.add_row(
+            p.name,
+            p.start,
+            p.end,
+            ", ".join(p.focus_subjects) or "—",
+            _fmt_weights(p.weight_overrides),
+        )
+
+    console.print(table)
+    if yp.target_scores:
+        scores = "  ".join(f"{k} {v}" for k, v in yp.target_scores.items() if v)
+        if scores:
+            console.print(f"[dim]目标分数: {scores}[/dim]")
+
+
+@app.command()
+def monthly(
+    month: str = typer.Option("", "--month", "-m", help="YYYY-MM，默认本月"),
+    generate: bool = typer.Option(
+        False, "--generate", "-g", help="生成/重新生成月度计划"
+    ),
+) -> None:
+    """查看或生成本月计划（阶段权重 + 目标）。"""
+    store = _store()
+    _require_init(store)
+
+    target = month or date.today().strftime("%Y-%m")
+
+    if generate:
+        plan = planner_mod.generate_monthly_plan(store, target)
+        source = plan.generated_from.get("source", "")
+        console.print(
+            f"[green]✓ 已生成 {target} 月度计划[/green] [dim](来源: {source})[/dim]"
+        )
+
+    plan = store.load_monthly_plan(target)
+    if plan is None:
+        console.print(f"[yellow]{target} 暂无月度计划，用 -g 生成[/yellow]")
+        return
+
+    console.print(
+        f"[bold cyan]🗓️  {plan.month} 月度计划[/bold cyan] "
+        f"[dim]阶段: {plan.phase or '—'}[/dim]"
+    )
+    console.print(f"  权重: {_fmt_weights(plan.subject_weights)}")
+    if plan.goals:
+        console.print("  目标:")
+        for g in plan.goals:
+            console.print(f"    • [{g.subject}] {g.goal}")
+    rationale = plan.generated_from.get("rationale", "")
+    if rationale:
+        console.print(f"  [dim]说明: {rationale}[/dim]")
+
+
+@app.command()
+def review(
+    budget: int = typer.Option(40, "--budget", "-b", help="复习时间预算（分钟）"),
+    agent: bool = typer.Option(False, "--agent", help="用 ReviewPicker agent 精选"),
+) -> None:
+    """按知识点弱点抽取今日复查错题。"""
+    store = _store()
+    _require_init(store)
+
+    if agent:
+        res = wb.pick_reviews_with_agent(store, time_budget_minutes=budget)
+        console.print(
+            f"[dim]来源: {res['source']} | {res['rationale']}[/dim]"
+        )
+        items = res["items"]
+    else:
+        res = wb.pick_reviews_kp_aware(store, time_budget_minutes=budget)
+        items = res["items"]
+
+    if not items:
+        console.print("[yellow]暂无可复查的错题[/yellow]")
+        return
+
+    table = Table(title=f"📝 今日复查（{res['count']} 题 / {budget} 分钟）")
+    table.add_column("ID", style="dim")
+    table.add_column("科目", style="cyan")
+    table.add_column("知识点")
+    table.add_column("掌握度")
+    table.add_column("到期")
+    table.add_column("紧急度", justify="right")
+
+    for it in items:
+        q = it["question"]
+        kp = ", ".join(q.get("knowledge_points", [])) or "—"
+        due = "●" if it.get("due") else "○"
+        console_kp = f"{it.get('kp_mastery', 0):.0%}" if "kp_mastery" in it else "—"
+        table.add_row(
+            q["id"],
+            q.get("subject", ""),
+            kp,
+            console_kp,
+            due,
+            f"{it.get('score', 0):.2f}",
+        )
+
+    console.print(table)
+    console.print("[dim]用 [bold]study-coach review --agent[/bold] 让 AI 精选排序[/dim]")
+
+
+@app.command()
+def drift() -> None:
+    """检测计划漂移信号（触发则建议重新生成月度计划）。"""
+    store = _store()
+    _require_init(store)
+
+    result = supervisor.detect_drift(store)
+    if not result["signals"]:
+        console.print("[green]✓ 未检测到漂移信号，计划节奏正常[/green]")
+        return
+
+    console.print("[bold yellow]⚠️  检测到漂移信号[/bold yellow]\n")
+    table = Table(title="漂移信号")
+    table.add_column("类型", style="cyan")
+    table.add_column("严重度")
+    table.add_column("说明")
+    sev_icon = {"high": "🔴", "medium": "🟡", "low": "🟢"}
+    for sig in result["signals"]:
+        table.add_row(
+            sig["type"],
+            sev_icon.get(sig["severity"], "⚪") + " " + sig["severity"],
+            sig["detail"],
+        )
+    console.print(table)
+    console.print(
+        "\n[dim]建议运行 [bold]study-coach monthly -g[/bold] 重新生成月度计划[/dim]"
+    )
 
 
 # ---------------------------------------------------------------------------

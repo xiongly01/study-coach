@@ -237,26 +237,51 @@ const WrongBook = {
     badge.style.display = data.count > 0 ? "inline" : "none";
   },
 
-  async loadReview() {
-    const data = await api("/api/wrong-book/review/today");
+  async loadReview(useAgent) {
+    const budgetEl = document.getElementById("wb-review-budget");
+    const budget = parseInt((budgetEl && budgetEl.value) || "40", 10);
+    let data;
+    if (useAgent) {
+      data = await api("/api/wrong-book/review/agent-pick", "POST", { budget });
+    } else {
+      data = await api(`/api/wrong-book/review/pick?budget=${budget}`);
+    }
     const container = document.getElementById("wb-review-cards");
     container.innerHTML = "";
 
-    if (!data.questions || data.questions.length === 0) {
-      container.innerHTML = '<div style="color:var(--text-dim);text-align:center;padding:2rem;font-size:0.9rem">🎉 今日没有待复习的错题</div>';
+    const items = data.items || [];
+    if (items.length === 0) {
+      container.innerHTML = '<div style="color:var(--text-dim);text-align:center;padding:2rem;font-size:0.9rem">🎉 暂无可复查的错题</div>';
       return;
     }
 
-    data.questions.forEach(q => {
+    // Show curation source/rationale when the agent path was used.
+    if (data.source) {
+      const note = document.createElement("div");
+      note.style.cssText = "font-size:0.8rem;color:var(--text-dim);margin-bottom:0.6rem";
+      note.textContent = `来源：${data.source}${data.rationale ? " · " + data.rationale : ""}`;
+      container.appendChild(note);
+    }
+
+    items.forEach(it => {
+      const q = it.question;
       const card = document.createElement("div");
       card.className = "review-card";
       card.id = `rc-${q.id}`;
+      const kps = (q.knowledge_points || []).map(kp => `<span class="kp-tag">${kp}</span>`).join(" ");
+      const kpPct = Math.round((it.kp_mastery ?? 0) * 100);
+      const meta = [
+        `掌握度 ${kpPct}%`,
+        it.due ? "到期" : "未到期",
+        `紧急度 ${(it.score ?? 0).toFixed(2)}`,
+      ].join(" · ");
       card.innerHTML = `
         <div class="rc-text">${q.question_text}</div>
+        <div style="font-size:0.75rem;color:var(--text-dim);margin:0.3rem 0">${meta}</div>
         <button class="reveal-btn" onclick="this.nextElementSibling.classList.toggle('visible')">显示解析</button>
         <div class="rc-answer">${q.answer || "暂无解析"}</div>
         <div style="margin:0.5rem 0">
-          ${q.knowledge_points.map(kp => `<span class="kp-tag">${kp}</span>`).join(" ")}
+          ${kps}
         </div>
         <div class="rc-actions">
           <button class="review-btn mastered" onclick="WrongBook.submitReview('${q.id}','mastered')">✓ 掌握了</button>
