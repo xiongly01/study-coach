@@ -309,8 +309,14 @@ def create_today_plan(
         longterm = store.load_longterm_plan()
         yesterday = store.load_daily_plan(date.today() - timedelta(days=1))
 
-        # Monthly weights feed the cascade; absent plan falls back to phase defaults.
-        monthly = store.load_monthly_plan(date.today().strftime("%Y-%m"))
+        # The daily entry point drives the cascade: when this month has no plan
+        # yet, generate one so the agent + phase weights actually apply. The
+        # load==None check is the idempotent gate — generate_monthly_plan
+        # persists, so subsequent daily generations skip the agent entirely.
+        month_str = date.today().strftime("%Y-%m")
+        monthly = store.load_monthly_plan(month_str)
+        if monthly is None:
+            monthly = generate_monthly_plan(store, month_str)
         weights = monthly.subject_weights if monthly else None
 
         # Knowledge-point-driven review selection: weakest KPs surface first.

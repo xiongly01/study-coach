@@ -8,7 +8,6 @@ from typing import Any
 from .kp_index import build_kp_index, rank_weak_kps
 from .models import Config, DailyPlan, LongtermPlan, Task
 from .planner import (
-    _SUBJECT_WEIGHTS,
     check_milestones,
     get_active_milestone,
     suggest_daily_tasks,
@@ -62,21 +61,21 @@ def check_compliance(store: Store, days: int = 7) -> dict[str, Any]:
 
 
 def adjust_plan(store: Store) -> dict[str, Any]:
-    """Analyze recent performance and adjust future planning weights.
+    """Nudge daily study hours down when recent adherence is low.
 
-    Returns a description of adjustments made.
+    Owns only the daily-hours lever — the one planning variable the monthly
+    cascade does not set. Subject-weight redistribution belongs to the cascade
+    (planner.derive_monthly_weights + agent), so it is intentionally not done
+    here. Returns {"adherence_rate", "adjustments"}.
     """
     config = store.load_config()
-    longterm = store.load_longterm_plan()
     compliance = check_compliance(store, days=7)
 
     adjustments: dict[str, Any] = {
         "adherence_rate": compliance["adherence_rate"],
         "adjustments": [],
-        "new_weights": dict(_SUBJECT_WEIGHTS),
     }
 
-    # If overall adherence is low, reduce planned hours
     adherence = compliance["adherence_rate"]
     if adherence < 0.5:
         adjustments["adjustments"].append(
@@ -87,23 +86,6 @@ def adjust_plan(store: Store) -> dict[str, Any]:
             adjustments["adjustments"].append(
                 f"每日学习时长调整为 {config.daily_study_hours} 小时"
             )
-
-    # Redistribute time towards deficit subjects
-    total_deficit = sum(compliance["subject_deficit"].values())
-    if total_deficit > 0:
-        for subject, deficit in compliance["subject_deficit"].items():
-            if deficit > 0 and subject in _SUBJECT_WEIGHTS:
-                # Increase weight for subjects with the most deficit
-                bonus = 0.05
-                adjustments["new_weights"][subject] = _SUBJECT_WEIGHTS[subject] + bonus
-                adjustments["adjustments"].append(
-                    f"{subject}: 增加{bonus:.0%}权重（累计落后{deficit // 60}h{deficit % 60}m）"
-                )
-
-        # Normalize weights so they sum to 1.0
-        total = sum(adjustments["new_weights"].values())
-        for k in adjustments["new_weights"]:
-            adjustments["new_weights"][k] /= total
 
     store.save_config(config)
     return adjustments

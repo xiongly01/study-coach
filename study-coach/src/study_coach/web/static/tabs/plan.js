@@ -87,12 +87,18 @@ const Plan = {
     }
     panel.style.display = "block";
     const icon = { high: "🔴", medium: "🟡", low: "🟢" };
-    container.innerHTML = data.signals.map(s =>
+    let html = data.signals.map(s =>
       `<div class="history-item">
         <div class="hi-date">${icon[s.severity] || "⚪"} ${s.type}</div>
         <div class="hi-summary">${s.detail}</div>
        </div>`
     ).join("");
+    // Drift describes past deviation; regenerating refreshes the month's weights
+    // for the days ahead. Signals persist until execution catches up.
+    if (data.trigger_replan) {
+      html += `<button class="btn btn-small" style="margin-top:0.6rem;width:100%" onclick="Plan.generateMonthly()">根据漂移重新生成月度</button>`;
+    }
+    container.innerHTML = html;
   },
 
   // ---- Milestones ----

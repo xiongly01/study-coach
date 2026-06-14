@@ -40,7 +40,6 @@ from ..planner import (
 from ..reporter import generate_weekly_report
 from ..store import Store
 from ..supervisor import (
-    adjust_plan,
     check_compliance,
     detect_drift,
     get_status as _get_status,
