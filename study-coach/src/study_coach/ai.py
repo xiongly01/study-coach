@@ -230,6 +230,7 @@ def agent_plan_monthly(context: dict[str, Any]) -> dict[str, Any]:
     """
     baseline = dict(context.get("baseline_weights", {}))
     subjects = context.get("subjects", list(baseline))
+    chapter_listing = context.get("chapter_listing", "")
 
     if not is_api_key_configured():
         return {
@@ -239,6 +240,8 @@ def agent_plan_monthly(context: dict[str, Any]) -> dict[str, Any]:
             "source": "fallback",
         }
 
+    chapter_section = f"\n各科目章节（供目标落地参考）：\n{chapter_listing}\n" if chapter_listing else ""
+
     prompt = f"""你是考研规划助手。基于以下信号，为 {context.get('month', '本月')}（{context.get('phase', '')}）提出各科目时间权重与月度目标。
 
 信号：
@@ -247,17 +250,17 @@ def agent_plan_monthly(context: dict[str, Any]) -> dict[str, Any]:
 - 各科目时间赤字（分钟）：{context.get('subject_deficit', {})}
 - 最薄弱知识点：{[kp.get('name') for kp in context.get('top_weak_kps', [])]}
 - 确定性基线权重：{baseline}
-
+{chapter_section}
 返回 JSON：
 {{
     "subject_weights": {{"数学一": 0.4, "408": 0.3, "英语一": 0.2, "政治": 0.1}},
-    "goals": [{{"subject": "数学一", "goal": "完成高数强化前3章"}}],
+    "goals": [{{"subject": "数学一", "goal": "完成高等数学：函数极限连续 + 一元函数微分学"}}],
     "rationale": "一句话说明调整理由"
 }}
 
 要求：
 - subject_weights 必须覆盖所有科目，数值非负
-- goals 每科最多一条，目标具体可验收
+- goals 每科最多一条，目标具体可验收，优先落到真实章节名
 - 只返回 JSON"""
 
     try:

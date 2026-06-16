@@ -177,6 +177,7 @@ def generate_monthly_plan(
     # Lazy imports avoid the planner<->supervisor and planner<->ai cycles at load.
     from .ai import agent_plan_monthly
     from .supervisor import check_compliance
+    from .syllabus import chapter_block
 
     if month is None:
         month = date.today().strftime("%Y-%m")
@@ -186,11 +187,13 @@ def generate_monthly_plan(
     compliance = check_compliance(store, days=30)
     questions = store.load_wrong_questions()
     kp_index = build_kp_index(questions)
+    syllabus = store.load_syllabus()
 
     baseline_weights, audit = derive_monthly_weights(
         yearly, month, config, compliance, kp_index
     )
     weak_kps = [s.to_dict() for s in rank_weak_kps(kp_index, limit=5)]
+    chapter_listing = chapter_block(syllabus, config.subjects) if syllabus else ""
 
     proposal = agent_plan_monthly(
         {
@@ -201,6 +204,7 @@ def generate_monthly_plan(
             "subject_deficit": compliance.get("subject_deficit"),
             "top_weak_kps": weak_kps,
             "baseline_weights": baseline_weights,
+            "chapter_listing": chapter_listing,
         }
     )
 

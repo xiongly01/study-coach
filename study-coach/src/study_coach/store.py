@@ -29,6 +29,7 @@ from .models import (
     WrongQuestion,
     YearlyPlan,
 )
+from .syllabus import load_syllabus
 
 
 class Store:
@@ -320,3 +321,9 @@ class Store:
 
     def reviews_for_question(self, question_id: str) -> list[ReviewRecord]:
         return [r for r in self.load_review_records() if r.wrong_question_id == question_id]
+
+    # ---- Syllabus ----
+
+    def load_syllabus(self) -> dict[str, Any]:
+        """Load the syllabus.json reference data. Returns {} if missing."""
+        return load_syllabus()

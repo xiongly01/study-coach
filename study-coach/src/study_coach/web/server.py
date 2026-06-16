@@ -338,6 +338,24 @@ async def get_compliance():
 # ---------------------------------------------------------------------------
 
 
+@app.get("/api/syllabus")
+async def get_syllabus(subject: str = ""):
+    """Return syllabus outline. If subject given, return chapters for that subject."""
+    store = _store()
+    syllabus = store.load_syllabus()
+    if not syllabus:
+        return {"ok": False, "error": "syllabus.json not found"}
+    from ..syllabus import chapters, outline
+    if subject:
+        return {"subject": subject, "chapters": chapters(syllabus, subject)}
+    # Return full outline for all subjects
+    subjects = list(syllabus.get("subjects", {}).keys())
+    return {
+        "subjects": subjects,
+        "outlines": {s: outline(syllabus, s) for s in subjects},
+    }
+
+
 @app.get("/api/questions")
 async def list_questions(subject: str = ""):
     store = _store()

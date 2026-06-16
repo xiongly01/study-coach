@@ -22,6 +22,7 @@ from . import tracker
 from . import wrong_book as wb
 from .models import Config, DailyPlan, LongtermPlan, Question, Task, TestResult
 from .store import Store
+from .syllabus import chapters
 
 app = typer.Typer(
     name="study-coach",
@@ -649,6 +650,14 @@ def test(
 def _add_questions_interactive(store: Store, subject: str) -> None:
     """Interactively add questions to the question bank."""
     console.print(f"[bold cyan]📝 添加 {subject} 题目[/bold cyan]\n")
+
+    # Load syllabus and show chapter hints for the selected subject
+    syllabus = store.load_syllabus()
+    subject_chapters = chapters(syllabus, subject) if syllabus else []
+    if subject_chapters:
+        # Show first 10 chapters as hints, truncated if too many
+        hint = subject_chapters[:10]
+        console.print(f"[dim]可选章节：{' | '.join(hint)}{'...' if len(subject_chapters) > 10 else ''}[/dim]\n")
 
     count = 0
     while True:
