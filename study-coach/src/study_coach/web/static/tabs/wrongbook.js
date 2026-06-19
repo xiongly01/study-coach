@@ -2,6 +2,7 @@
 
 const WrongBook = {
   selectedFile: null,
+  selectedPdf: null,
   currentPage: 1,
   aiAvailable: false,
 
@@ -39,7 +40,7 @@ const WrongBook = {
     if (loaders[name]) loaders[name]();
   },
 
-  // ---- Upload ----
+  // ---- Image Upload ----
 
   handleImageSelect(event) {
     const file = event.target.files[0];
@@ -108,6 +109,58 @@ const WrongBook = {
     document.getElementById("upload-placeholder").style.display = "block";
     document.getElementById("wb-analyze-btn").disabled = true;
     document.getElementById("wb-source").value = "";
+  },
+
+  // ---- PDF Upload ----
+
+  handlePdfSelect(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    this.selectedPdf = file;
+    document.getElementById("wb-pdf-btn").disabled = false;
+  },
+
+  async analyzePdf() {
+    if (!this.selectedPdf) { showToast("请先选择 PDF 文件"); return; }
+    if (!this.aiAvailable) { showToast("AI 服务未配置，请设置 ANTHROPIC_API_KEY"); return; }
+
+    const btn = document.getElementById("wb-pdf-btn");
+    const progress = document.getElementById("wb-pdf-progress");
+    btn.textContent = "处理中...";
+    btn.disabled = true;
+    progress.style.display = "block";
+    progress.textContent = "正在转换 PDF 并分析各页，请稍候...";
+
+    const formData = new FormData();
+    formData.append("file", this.selectedPdf);
+    formData.append("subject", document.getElementById("wb-subject").value);
+    formData.append("source", document.getElementById("wb-source").value || this.selectedPdf.name);
+
+    try {
+      const res = await fetch("/api/wrong-book/upload-pdf", { method: "POST", body: formData });
+      const data = await res.json();
+      if (data.error) {
+        progress.textContent = "❌ " + data.error;
+        showToast(data.error);
+        return;
+      }
+      progress.textContent = `✅ 已添加 ${data.total_pages} 页错题`;
+      showToast(`PDF 已处理完成，共 ${data.total_pages} 页`);
+      this.resetPdfUpload();
+      this.loadReviewBadge();
+    } catch (e) {
+      progress.textContent = "❌ 处理失败：" + e.message;
+      showToast("处理失败：" + e.message);
+    } finally {
+      btn.textContent = "分析 PDF";
+      btn.disabled = true;
+    }
+  },
+
+  resetPdfUpload() {
+    this.selectedPdf = null;
+    document.getElementById("wb-pdf-input").value = "";
+    document.getElementById("wb-pdf-btn").disabled = true;
   },
 
   async manualAdd() {

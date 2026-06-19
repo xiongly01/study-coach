@@ -509,6 +509,39 @@ async def upload_wrong_question(
     return {"ok": True, "question": wq.to_dict()}
 
 
+@app.post("/api/wrong-book/upload-pdf")
+async def upload_pdf_wrong_questions(
+    file: UploadFile = File(...),
+    subject: str = Form(""),
+    source: str = Form(""),
+):
+    """Upload a PDF, convert pages to images, and add each as a wrong question."""
+    if not is_api_key_configured():
+        return JSONResponse(
+            {"error": "AI service not configured. Set ANTHROPIC_API_KEY environment variable."},
+            status_code=503,
+        )
+
+    content = await file.read()
+    pdf_source = source or file.filename or "PDF"
+
+    try:
+        questions = wb.add_from_pdf(
+            _store(),
+            pdf_bytes=content,
+            subject_hint=subject,
+            source=pdf_source,
+        )
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
+
+    return {
+        "ok": True,
+        "total_pages": len(questions),
+        "questions": [q.to_dict() for q in questions],
+    }
+
+
 @app.post("/api/wrong-book")
 async def create_wrong_question(body: dict[str, Any]):
     """Manually add a wrong question."""

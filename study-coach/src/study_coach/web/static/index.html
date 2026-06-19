@@ -215,6 +215,19 @@
               <!-- AI result preview -->
               <div id="wb-ai-result" class="ai-result" style="display:none"></div>
 
+              <!-- PDF upload section -->
+              <div class="pdf-upload-section" style="margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--border)">
+                <h3 style="font-size:0.9rem;margin-bottom:0.5rem">📄 PDF 批量上传</h3>
+                <p style="font-size:0.8rem;color:var(--text-dim);margin-bottom:0.5rem">上传 PDF 文件，每页自动转为图片并 AI 分析</p>
+                <div class="upload-form">
+                  <input type="file" id="wb-pdf-input" accept=".pdf" style="flex:1" onchange="WrongBook.handlePdfSelect(event)">
+                  <button class="btn btn-accent" id="wb-pdf-btn" onclick="WrongBook.analyzePdf()" disabled>
+                    分析 PDF
+                  </button>
+                </div>
+                <div id="wb-pdf-progress" style="display:none;margin-top:0.5rem;font-size:0.85rem;color:var(--text-dim)"></div>
+              </div>
+
               <!-- Manual add fallback -->
               <details class="manual-add">
                 <summary>手动添加（不使用 AI）</summary>

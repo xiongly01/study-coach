@@ -5,6 +5,8 @@ from __future__ import annotations
 from datetime import date, timedelta
 from typing import Any
 
+import fitz  # PyMuPDF
+
 from .ai import analyze_question_image, is_api_key_configured
 from .kp_index import (
     build_kp_index,
@@ -56,6 +58,54 @@ def add_from_image(
 
     store.append_wrong_question(wq)
     return wq
+
+
+def add_from_pdf(
+    store: Store,
+    pdf_bytes: bytes,
+    subject_hint: str = "",
+    source: str = "",
+    dpi: int = 150,
+) -> list[WrongQuestion]:
+    """Convert PDF pages to images and add each as a WrongQuestion.
+
+    Args:
+        store: Data store instance.
+        pdf_bytes: PDF file content as bytes.
+        subject_hint: Optional subject hint for AI analysis.
+        source: Source identifier (e.g., filename).
+        dpi: Resolution for PDF to image conversion (default 150).
+
+    Returns:
+        List of created WrongQuestion objects (one per page).
+    """
+    results: list[WrongQuestion] = []
+
+    doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+    try:
+        for page_num in range(len(doc)):
+            page = doc[page_num]
+            # Render page to image
+            mat = fitz.Matrix(dpi / 72, dpi / 72)
+            pix = page.get_pixmap(matrix=mat)
+            image_bytes = pix.tobytes(output="png")
+            media_type = "image/png"
+
+            # Source includes page number
+            page_source = f"{source} (第{page_num + 1}页)" if source else f"PDF 第{page_num + 1}页"
+
+            wq = add_from_image(
+                store,
+                image_bytes=image_bytes,
+                media_type=media_type,
+                subject_hint=subject_hint,
+                source=page_source,
+            )
+            results.append(wq)
+    finally:
+        doc.close()
+
+    return results
 
 
 def add_manual(

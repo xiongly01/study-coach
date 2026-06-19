@@ -81,7 +81,7 @@ def analyze_question_image(
         question_text, knowledge_points, difficulty, answer, topic
     """
     client = _client()
-    b64 = base64.std_b64encode(image_bytes).decode("utf-8")
+    b64 = base64.b64encode(image_bytes).decode("utf-8")
 
     subject_line = f"科目提示：{subject_hint}\n" if subject_hint else ""
 
