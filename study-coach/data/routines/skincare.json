@@ -1,44 +1,84 @@
 {
-  "morning": {
-    "label": "晨间护肤（修护+防御）",
-    "minutes": 10,
-    "steps": [
-      "温和氨基酸洁面",
-      "可复美精华（全脸打底修护）",
-      "物理防晒霜（脸干可先涂清爽乳液再防晒）"
-    ]
-  },
-  "night_templates": {
-    "battle": {
-      "label": "夜间护肤·战痘日（治疗+淡印）",
-      "minutes": 20,
-      "steps": [
-        "温和洁面",
-        "可复美精华全脸（关键：等完全干透）",
-        "A区（闭口/黑头）：薄涂阿达帕林",
-        "B区（红肿大痘）：点涂班赛",
-        "C区（陈旧痘印）：薄涂377面霜",
-        "D区（破口/脓头）：点涂夫西地酸",
-        "注意：A区与C区错开；脸干则先377打底再涂阿达帕林"
-      ]
+    "morning": {
+        "label": "晨间护肤（保湿+防护）",
+        "minutes": 10,
+        "steps": [
+            "洁面",
+            "水乳",
+            "B5保湿精华露",
+            "点涂药物（有红肿炎性痘痘时：过氧苯甲酰或夫西地酸，无则跳过）",
+            "防晒（必须）"
+        ]
     },
-    "repair": {
-      "label": "夜间护肤·修护日（修护屏障+淡印）",
-      "minutes": 15,
-      "steps": [
-        "温和洁面",
-        "可复美精华全脸",
-        "377面霜全脸（停用阿达帕林和班赛，集中修护屏障、淡化痘印）"
-      ]
+    "night_templates": {
+        "adapalene": {
+            "label": "夜间护肤·阿达帕林日（治疗闭口黑头）",
+            "minutes": 15,
+            "steps": [
+                "洁面",
+                "水乳",
+                "B5保湿精华露",
+                "等待5分钟",
+                "阿达帕林（全脸薄涂，避开眼周、嘴角）",
+                "修复精华"
+            ]
+        },
+        "repair": {
+            "label": "夜间护肤·修护日（屏障修复+保湿）",
+            "minutes": 15,
+            "steps": [
+                "洁面",
+                "水乳",
+                "B5保湿精华露",
+                "修复精华",
+                "面膜（每周1-2次，非阿达帕林日使用）"
+            ]
+        }
+    },
+    "weekday_map": {
+        "week1": {
+            "mon": "adapalene",
+            "tue": "repair",
+            "wed": "repair",
+            "thu": "adapalene",
+            "fri": "repair",
+            "sat": "repair",
+            "sun": "repair"
+        },
+        "week2": {
+            "mon": "adapalene",
+            "tue": "repair",
+            "wed": "adapalene",
+            "thu": "repair",
+            "fri": "adapalene",
+            "sat": "repair",
+            "sun": "repair"
+        },
+        "week3_4": {
+            "mon": "adapalene",
+            "tue": "adapalene",
+            "wed": "repair",
+            "thu": "adapalene",
+            "fri": "adapalene",
+            "sat": "repair",
+            "sun": "adapalene"
+        },
+        "maintain": {
+            "mon": "adapalene",
+            "tue": "adapalene",
+            "wed": "adapalene",
+            "thu": "adapalene",
+            "fri": "adapalene",
+            "sat": "repair",
+            "sun": "adapalene"
+        }
+    },
+    "notes": {
+        "tolerance_building": "阿达帕林耐受建立：第1周每周2次，第2周隔天1次，第3-4周每晚1次，之后维持",
+        "warning_signs": "出现明显脱皮、刺痛、泛红时，退回上一阶段频率",
+        "sun_protection": "阿达帕林会增加光敏感，白天必须防晒",
+        "breakout_period": "使用阿达帕林前2-4周可能出现爆痘期，属正常现象，坚持使用",
+        "combination_rules": "阿达帕林和过氧苯甲酰不能同时全脸涂抹，但可以阿达帕林全脸+过氧苯甲酰点涂痘痘",
+        "mask_usage": "面膜每周1-2次，在修护日使用"
     }
-  },
-  "weekday_map": {
-    "mon": "battle",
-    "tue": "repair",
-    "wed": "battle",
-    "thu": "repair",
-    "fri": "battle",
-    "sat": "repair",
-    "sun": "repair"
-  }
 }

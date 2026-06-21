@@ -6,17 +6,20 @@ from datetime import date, datetime, timedelta
 from typing import Any
 
 from .kp_index import KnowledgePointStat, build_kp_index, rank_weak_kps
+from .math_matcher import enrich_task_content, get_kp_summary_for_text, load_math_kps
 from .models import (
     Config,
     DailyPlan,
     LongtermPlan,
     Milestone,
+    MonthlyGoal,
     MonthlyPlan,
     Task,
     YearlyPlan,
 )
-from .skincare import build_skincare_tasks
 from .store import Store
+from .syllabus import knowledge_points as syllabus_kp
+from .syllabus import load_syllabus
 from .wrong_book import REVIEW_MINUTES_PER_ITEM, pick_reviews_kp_aware
 
 
@@ -234,6 +237,8 @@ def generate_monthly_plan(
 def suggest_daily_tasks(
     config: Config,
     longterm: LongtermPlan,
+    monthly_goals: list[MonthlyGoal],
+    syllabus: dict[str, Any],
     yesterday: DailyPlan | None = None,
     weights: dict[str, float] | None = None,
     review_load_minutes: int = 0,
@@ -242,6 +247,8 @@ def suggest_daily_tasks(
 
     weights: per-subject allocation from the monthly plan. When None the static
     phase defaults (_SUBJECT_WEIGHTS) are used, preserving prior behavior.
+    monthly_goals: monthly goals for extracting chapter and knowledge points.
+    syllabus: syllabus data for extracting knowledge points and preview.
     review_load_minutes: time already reserved for wrong-question review, carved
     out of the new-material budget so the daily total still fits the configured
     study hours.
@@ -274,15 +281,135 @@ def suggest_daily_tasks(
                 minutes = (minutes // 5) * 5  # round to 5-min blocks
                 if minutes > 0:
                     content = _default_task_content(subject, active)
-                    tasks.append(
-                        Task(
-                            subject=subject,
-                            content=content,
-                            planned_minutes=minutes,
-                        )
+                    task = Task(
+                        subject=subject,
+                        content=content,
+                        planned_minutes=minutes,
                     )
+                    # Enrich with knowledge points and preview
+                    task = _enrich_task_with_kps(
+                        task, subject, monthly_goals, syllabus, max_kps=3
+                    )
+                    tasks.append(task)
 
     return tasks
+
+
+def _extract_chapter_from_goal(goal: str) -> str | None:
+    """Extract chapter name from monthly goal text.
+
+    Goal format: "完成 {section_name}：{chapter_names}" or "完成 {chapter_name}"
+    Returns the first chapter name after the colon, or the entire goal if no colon.
+    Examples:
+        "完成高等数学：函数、极限、连续与一元函数微分学" -> "函数、极限、连续"
+        "完成通用基础能力：词汇与长难句的核心梳理" -> "词汇与长难句"
+    """
+    if "：" in goal:
+        return goal.split("：", 1)[1].strip()
+    elif ":" in goal:
+        return goal.split(":", 1)[1].strip()
+    # Fallback: entire goal if no colon
+    return goal.replace("完成", "").strip() if goal.startswith("完成") else goal.strip()
+
+
+def _match_chapters_in_text(
+    text: str, subject: str, syllabus: dict[str, Any]
+) -> list[str]:
+    """Match syllabus chapter names found within the given text.
+
+    Scans all chapters of the subject in the syllabus and returns those whose
+    name appears as a substring in text. Returns longest matches first so that
+    "词汇与长难句" is preferred over a partial match.
+    """
+    from .syllabus import chapters as syllabus_chapters
+
+    all_chapters = syllabus_chapters(syllabus, subject)
+    # Sort by length descending so longer (more specific) names match first
+    matched = [ch for ch in sorted(all_chapters, key=len, reverse=True) if ch in text]
+    return matched
+
+
+def _get_knowledge_points_from_syllabus(
+    subject: str,
+    goal_text: str,
+    syllabus: dict[str, Any],
+    max_count: int = 5,
+) -> tuple[list[str], list[str]]:
+    """Extract knowledge points for today and preview for tomorrow.
+
+    Matches goal text against syllabus chapter names, then pulls KPs from the
+    first matched chapter. Remaining KPs become tomorrow's preview.
+
+    Returns (today_kps, tomorrow_kps).
+    """
+    if not goal_text:
+        return [], []
+
+    matched_chapters = _match_chapters_in_text(goal_text, subject, syllabus)
+    if not matched_chapters:
+        return [], []
+
+    # Use the first (longest) matched chapter
+    today_kps = syllabus_kp(syllabus, subject, matched_chapters[0])
+    if not today_kps:
+        return [], []
+
+    # Select a subset for today (up to max_count)
+    today_selected = today_kps[:max_count] if max_count else today_kps
+
+    # Preview: remaining points from this chapter
+    tomorrow_preview = today_kps[max_count:] if max_count < len(today_kps) else []
+
+    # If this chapter is exhausted, pull from the next matched chapter
+    if not tomorrow_preview and len(matched_chapters) > 1:
+        next_kps = syllabus_kp(syllabus, subject, matched_chapters[1])
+        tomorrow_preview = next_kps[:max(1, max_count // 2)]
+
+    return today_selected, tomorrow_preview
+
+
+def _enrich_task_with_kps(
+    task: Task,
+    subject: str,
+    monthly_goals: list[MonthlyGoal],
+    syllabus: dict[str, Any],
+    max_kps: int = 5,
+) -> Task:
+    """Enrich a task with knowledge points and preview for tomorrow.
+
+    Extracts chapter from monthly goal, then pulls KPs from syllabus.
+    For math subjects, also matches against the math formula handbook index.
+    """
+    # Find the matching goal for this subject
+    goal = None
+    for g in monthly_goals:
+        if g.subject == subject:
+            goal = g.goal
+            break
+
+    if not goal:
+        return task
+
+    goal_text = _extract_chapter_from_goal(goal)
+    today_kps, tomorrow_kps = _get_knowledge_points_from_syllabus(
+        subject, goal_text, syllabus, max_count=max_kps
+    )
+
+    task.knowledge_points = today_kps
+    task.preview_for_tomorrow = tomorrow_kps
+
+    # For math subjects, enrich content with matched knowledge points
+    if "数学" in subject:
+        math_kps = load_math_kps()
+        # Match based on task content + goal text for better accuracy
+        combined_text = f"{task.content} {goal_text}"
+        kp_summary = get_kp_summary_for_text(combined_text, kps=math_kps, subject="高等数学")
+        if kp_summary:
+            # Append matched KPs to content if not already present
+            if "相关知识点" not in task.content:
+                task.content = f"{task.content}\n{kp_summary}"
+
+    return task
 
 
 def _default_task_content(subject: str, milestone: Milestone | None) -> str:
@@ -330,6 +457,8 @@ def create_today_plan(
         tasks = suggest_daily_tasks(
             config,
             longterm,
+            monthly.goals if monthly else [],
+            load_syllabus(),
             yesterday,
             weights=weights,
             review_load_minutes=review_load,
@@ -345,10 +474,6 @@ def create_today_plan(
                     planned_minutes=review_load,
                 )
             )
-
-        # Lifestyle routines (e.g. skincare) are appended after study
-        # allocation so they never draw from the study-hour budget.
-        tasks.extend(build_skincare_tasks(store, date.today()))
 
     plan = DailyPlan(date=today, tasks=tasks)
     store.save_daily_plan(plan)

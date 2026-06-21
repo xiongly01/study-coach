@@ -324,6 +324,8 @@ class Task:
     planned_minutes: int = 0
     actual_minutes: int = 0
     done: bool = False
+    knowledge_points: list[str] = field(default_factory=list)
+    preview_for_tomorrow: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -333,6 +335,8 @@ class Task:
             "planned_minutes": self.planned_minutes,
             "actual_minutes": self.actual_minutes,
             "done": self.done,
+            "knowledge_points": self.knowledge_points,
+            "preview_for_tomorrow": self.preview_for_tomorrow,
         }
 
     @classmethod

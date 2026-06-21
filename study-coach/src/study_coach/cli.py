@@ -16,7 +16,6 @@ from rich.table import Table
 from . import examiner
 from . import planner as planner_mod
 from . import reporter
-from . import school_advisor as sa
 from . import supervisor
 from . import tracker
 from . import wrong_book as wb
@@ -232,6 +231,31 @@ def _show_or_create_daily(store: Store) -> None:
             f"{t.actual_minutes // 60}h{t.actual_minutes % 60:02d}m",
             status,
         )
+
+        # Show knowledge points if available
+        if t.knowledge_points:
+            table.add_row(
+                "",
+                "",
+                f"[dim]📚 今日知识点: {', '.join(t.knowledge_points[:5])}{'...' if len(t.knowledge_points) > 5 else ''}[/dim]",
+                "",
+                "",
+                "",
+            )
+
+        # Show preview for tomorrow if available
+        if t.preview_for_tomorrow:
+            table.add_row(
+                "",
+                "",
+                f"[dim]🔮 明日预习: {', '.join(t.preview_for_tomorrow[:5])}{'...' if len(t.preview_for_tomorrow) > 5 else ''}[/dim]",
+                "",
+                "",
+                "",
+            )
+
+        # Add separator between tasks for readability
+        table.add_section()
 
     console.print(table)
 
@@ -682,272 +706,53 @@ def _add_questions_interactive(store: Store, subject: str) -> None:
     console.print(f"\n[green]✓ 已添加 {count} 道题目[/green]")
 
 
-# ---------------------------------------------------------------------------
-# school — TEMPORARY: delete after choosing your target school
-# ---------------------------------------------------------------------------
-
-school_app = typer.Typer(
-    name="school",
-    help="🏫 [临时] 择校辅助 — 用完可删除 (school_advisor.py + 此命令组)",
-    no_args_is_help=True,
-)
-app.add_typer(school_app, name="school")
-
-
-@school_app.command("list")
-def school_list(
-    region: Optional[str] = typer.Option(None, "--region", "-r", help="地区: 北京/华东/华南/华中/西北"),
-    direction: Optional[str] = typer.Option(None, "--direction", "-d", help="方向: embodied/llm/robotics/ml/cv"),
-    tier: Optional[int] = typer.Option(None, "--tier", "-t", help="梯队: 1=顶尖 2=强势 3=中坚"),
-    diff: Optional[int] = typer.Option(None, "--diff", help="最高难度: 1=极难 2=较难 3=中等"),
-    require_408: bool = typer.Option(False, "--408", help="仅显示接受408统考的"),
+@app.command()
+def match(
+    text: str = typer.Argument(..., help="要匹配的文本内容"),
+    subject: str = typer.Option(None, "--subject", "-s", help="筛选科目: 高等数学/线性代数/概率论与数理统计"),
+    formulas: bool = typer.Option(False, "--formulas", "-f", help="显示相关公式"),
 ) -> None:
-    """List schools with optional filters."""
-    schools = sa.filter_schools(
-        region=region,
-        direction=direction,
-        tier=tier,
-        difficulty_max=diff,
-        require_408=require_408,
-    )
+    """测试数学知识点匹配功能。"""
+    from .math_matcher import get_formulas_for_text, get_kp_summary_for_text, load_math_kps, match_kps
 
-    if not schools:
-        console.print("[yellow]没有匹配的学校，试试放宽条件[/yellow]")
+    kps = load_math_kps()
+    if not kps:
+        console.print("[red]未找到知识点索引，请检查 data/math_knowledge_points.json[/red]")
+        raise typer.Exit(1)
+
+    subject_filter = subject
+    matched = match_kps(text, kps=kps, subject=subject_filter)
+
+    if not matched:
+        console.print(f"[yellow]未找到匹配的知识点[/yellow]")
         return
 
-    table = Table(title=f"🏫 院校列表 ({len(schools)}所)")
-    table.add_column("院校", style="bold")
-    table.add_column("地区")
-    table.add_column("梯队")
-    table.add_column("难度")
-    table.add_column("408")
-    table.add_column("方向")
-    table.add_column("亮点")
+    table = Table(title=f"📚 匹配结果 ({len(matched)} 个知识点)")
+    table.add_column("ID", style="dim")
+    table.add_column("知识点", style="bold cyan")
+    table.add_column("科目")
+    table.add_column("章节")
+    table.add_column("难度", justify="center")
+    table.add_column("描述")
 
-    for s in schools:
-        dirs = "、".join(sa.DIRECTION_LABELS.get(d, d) for d in s.directions)
-        tier_label = sa.TIER_LABELS.get(s.tier, str(s.tier))
-        diff_label = sa.DIFFICULTY_LABELS.get(s.difficulty, str(s.difficulty))
-        exam_408 = "[green]✓[/green]" if s.exam_cs408 else "[dim]✗[/dim]"
-        features = s.features[0] if s.features else ""
-        table.add_row(s.name, s.region, tier_label, diff_label, exam_408, dirs, features)
-
-    console.print(table)
-
-
-@school_app.command("compare")
-def school_compare(
-    names: str = typer.Argument(..., help="院校名，逗号分隔，如: 浙江大学,哈尔滨工业大学(深圳)"),
-) -> None:
-    """Compare specific schools side by side."""
-    name_list = [n.strip() for n in names.split(",")]
-    schools = sa.compare_schools(name_list)
-
-    if not schools:
-        console.print("[red]未找到匹配的院校，请检查名称[/red]")
-        return
-
-    # Overview table
-    table = Table(title="🏫 院校对比")
-    table.add_column("维度", style="bold cyan")
-
-    for s in schools:
-        table.add_column(s.name)
-
-    rows = [
-        ("地区", [s.region for s in schools]),
-        ("梯队", [sa.TIER_LABELS.get(s.tier, "") for s in schools]),
-        ("难度", [sa.DIFFICULTY_LABELS.get(s.difficulty, "") for s in schools]),
-        ("数学", [s.exam_math for s in schools]),
-        ("408", ["✓" if s.exam_cs408 else "✗" for s in schools]),
-        ("方向", ["、".join(sa.DIRECTION_LABELS.get(d, d) for d in s.directions) for s in schools]),
-        ("实验室", [", ".join(s.labs[:2]) + ("..." if len(s.labs) > 2 else "") for s in schools]),
-    ]
-
-    for label, values in rows:
-        table.add_row(label, *values)
-
-    console.print(table)
-
-    # Features detail
-    for s in schools:
-        console.print(f"\n[bold]{s.name}[/bold]")
-        for f in s.features:
-            console.print(f"  • {f}")
-        if s.labs:
-            console.print(f"  [dim]相关实验室: {', '.join(s.labs)}[/dim]")
-
-
-@school_app.command("recommend")
-def school_recommend(
-    primary: str = typer.Option("embodied", "--primary", "-p", help="主方向: embodied/llm/robotics/ml/cv"),
-    secondary: str = typer.Option("llm", "--secondary", "-s", help="副方向"),
-    max_diff: int = typer.Option(3, "--max-diff", help="最高难度 1-3"),
-    region: Optional[str] = typer.Option(None, "--region", "-r", help="偏好地区"),
-    top_n: int = typer.Option(5, "--top", "-n", help="推荐数量"),
-) -> None:
-    """Get personalized school recommendations based on your profile."""
-    console.print("[bold cyan]🎓 择校推荐[/bold cyan]")
-    console.print(f"  主方向: {sa.DIRECTION_LABELS.get(primary, primary)}")
-    console.print(f"  副方向: {sa.DIRECTION_LABELS.get(secondary, secondary)}")
-    console.print(f"  408统考偏好: 是")
-    console.print(f"  难度上限: {sa.DIFFICULTY_LABELS.get(max_diff, str(max_diff))}")
-    if region:
-        console.print(f"  偏好地区: {region}")
-    console.print()
-
-    results = sa.recommend(
-        primary_direction=primary,
-        secondary_direction=secondary,
-        prefer_408=True,
-        max_difficulty=max_diff,
-        preferred_region=region,
-        top_n=top_n,
-    )
-
-    if not results:
-        console.print("[yellow]没有匹配的推荐，试试放宽条件[/yellow]")
-        return
-
-    table = Table(title=f"🎯 推荐结果 (Top {len(results)})")
-    table.add_column("排名", style="bold")
-    table.add_column("院校", style="bold")
-    table.add_column("匹配度", style="green")
-    table.add_column("难度")
-    table.add_column("地区")
-    table.add_column("方向")
-    table.add_column("推荐理由")
-
-    max_score = results[0][1] if results else 1.0
-
-    for rank, (s, score) in enumerate(results, 1):
-        match_pct = (score / max_score * 100) if max_score > 0 else 0
-        dirs = "、".join(sa.DIRECTION_LABELS.get(d, d) for d in s.directions[:3])
-        diff_label = sa.DIFFICULTY_LABELS.get(s.difficulty, str(s.difficulty))
-
-        # Determine recommendation reason
-        reasons = []
-        if primary in s.directions and secondary in s.directions:
-            reasons.append("双方向匹配")
-        elif primary in s.directions:
-            reasons.append("主方向匹配")
-        if s.exam_cs408:
-            reasons.append("408统考")
-        if s.difficulty == 3:
-            reasons.append("上岸友好")
-
-        reason_str = "、".join(reasons)
+    for kp in matched:
         table.add_row(
-            str(rank),
-            s.name,
-            f"{match_pct:.0f}%",
-            diff_label,
-            s.region,
-            dirs,
-            reason_str,
+            kp.id,
+            kp.name,
+            kp.subject,
+            kp.chapter,
+            str(kp.difficulty),
+            kp.description[:30] + "..." if len(kp.description) > 30 else kp.description,
         )
 
     console.print(table)
 
-    # Detailed advice for top recommendation
-    if results:
-        top_school = results[0][0]
-        console.print(f"\n[bold green]🏆 首选推荐: {top_school.name}[/bold green]")
-        for f in top_school.features:
-            console.print(f"  • {f}")
-        console.print(f"  [dim]实验室: {', '.join(top_school.labs)}[/dim]")
-        console.print(f"\n[dim]用 [bold]study-coach school compare {top_school.name},{results[1][0].name if len(results) > 1 else ''}[/bold] 深入对比[/dim]")
-
-
-@school_app.command("interactive")
-def school_interactive() -> None:
-    """Interactive school selection wizard."""
-    console.print("[bold cyan]🎓 择校向导\n[/bold cyan]")
-
-    # Step 1: direction priorities
-    console.print("[bold]Step 1: 你的方向偏好[/bold]")
-    dir_options = list(sa.DIRECTION_LABELS.keys())
-    for i, d in enumerate(dir_options, 1):
-        console.print(f"  {i}. {sa.DIRECTION_LABELS[d]}")
-    primary_idx = IntPrompt.ask("主方向序号", default=1)
-    secondary_idx = IntPrompt.ask("副方向序号", default=2)
-    primary = dir_options[primary_idx - 1]
-    secondary = dir_options[secondary_idx - 1]
-
-    # Step 2: difficulty tolerance
-    console.print("\n[bold]Step 2: 难度接受度[/bold]")
-    console.print("  1. 只冲顶尖（清北中科院）")
-    console.print("  2. 可以较难（浙大上交南大等）")
-    console.print("  3. 追求上岸（北航华科中大等）")
-    max_diff = IntPrompt.ask("最高难度", default=3)
-
-    # Step 3: region preference
-    console.print("\n[bold]Step 3: 地区偏好[/bold]")
-    console.print("  北京 / 华东 / 华南 / 华中 / 西北 / 无偏好")
-    region_input = Prompt.ask("偏好地区（留空=不限）", default="")
-    region = region_input if region_input and region_input != "无偏好" else None
-
-    # Step 4: recommend
-    console.print()
-    results = sa.recommend(
-        primary_direction=primary,
-        secondary_direction=secondary,
-        prefer_408=True,
-        max_difficulty=max_diff,
-        preferred_region=region,
-        top_n=5,
-    )
-
-    if not results:
-        console.print("[yellow]没有匹配推荐，请放宽条件重试[/yellow]")
-        return
-
-    table = Table(title="🎯 为你推荐的院校")
-    table.add_column("排名", style="bold")
-    table.add_column("院校", style="bold")
-    table.add_column("难度")
-    table.add_column("地区")
-    table.add_column("方向")
-    table.add_column("亮点")
-
-    for rank, (s, score) in enumerate(results, 1):
-        dirs = "、".join(sa.DIRECTION_LABELS.get(d, d) for d in s.directions[:3])
-        diff_label = sa.DIFFICULTY_LABELS.get(s.difficulty, str(s.difficulty))
-        highlight = s.features[0] if s.features else ""
-        table.add_row(str(rank), s.name, diff_label, s.region, dirs, highlight)
-
-    console.print(table)
-
-    # Step 5: save to config
-    if Confirm.ask("\n是否将某个院校设为目标？", default=True):
-        school_names = [s.name for s, _ in results]
-        console.print(f"可选: {', '.join(school_names)}")
-        chosen = Prompt.ask("输入院校全名")
-        if chosen in school_names:
-            store = _store()
-            config = store.load_config()
-            config.target_school = chosen
-            store.save_config(config)
-            console.print(f"[green]✓ 目标院校已设为: {chosen}[/green]")
-            console.print("[dim]运行 [bold]study-coach school clean[/bold] 可删除择校模块[/dim]")
-        else:
-            console.print(f"[yellow]未找到 {chosen}，可稍后用 [bold]study-coach init[/bold] 修改[/yellow]")
-
-
-@school_app.command("clean")
-def school_clean() -> None:
-    """Show instructions to remove the school advisor module."""
-    console.print("[bold yellow]择校模块清理指南[/bold yellow]\n")
-    console.print("择校完成后，手动执行以下步骤:\n")
-    console.print("  1. 删除文件:")
-    console.print("     [dim]rm src/study_coach/school_advisor.py[/dim]")
-    console.print()
-    console.print("  2. 编辑 [bold]src/study_coach/cli.py[/bold]:")
-    console.print("     - 删除 [dim]from . import school_advisor as sa[/dim]")
-    console.print("     - 删除 [dim]school_app[/dim] 及其下所有 [dim]@school_app.command[/dim] 函数")
-    console.print("     - 删除 [dim]app.add_typer(school_app, ...)[/dim]")
-    console.print()
-    console.print("[green]目标院校已保存在 config.json 中，不受删除影响。[/green]")
+    if formulas:
+        formula_list = get_formulas_for_text(text, kps=kps, subject=subject_filter)
+        if formula_list:
+            console.print("\n[bold]📝 相关公式:[/bold]")
+            for i, f in enumerate(formula_list[:5], 1):
+                console.print(f"  {i}. {f}")
 
 
 # ---------------------------------------------------------------------------

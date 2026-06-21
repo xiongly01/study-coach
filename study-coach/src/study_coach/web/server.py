@@ -120,6 +120,8 @@ async def get_today_plan():
             "planned_minutes": t.planned_minutes,
             "actual_minutes": t.actual_minutes,
             "done": t.done,
+            "knowledge_points": t.knowledge_points,
+            "preview_for_tomorrow": t.preview_for_tomorrow,
         })
 
     pomodoros = []

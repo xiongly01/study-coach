@@ -1,0 +1,1605 @@
+{
+    "source": "张宇数学公式手册",
+    "description": "考研数学知识点索引，用于任务匹配和学习计划生成",
+    "subjects": [
+        {
+            "name": "高等数学",
+            "chapters": [
+                {
+                    "chapter": "函数、极限、连续",
+                    "knowledge_points": [
+                        {
+                            "id": "gao_shu_001",
+                            "name": "函数的基本性质",
+                            "keywords": [
+                                "函数",
+                                "单调性",
+                                "奇偶性",
+                                "周期性",
+                                "有界性"
+                            ],
+                            "difficulty": 1,
+                            "description": "函数的定义及四大基本性质"
+                        },
+                        {
+                            "id": "gao_shu_002",
+                            "name": "等价无穷小",
+                            "keywords": [
+                                "等价无穷小",
+                                "无穷小",
+                                "x趋近于0",
+                                "sin x",
+                                "tan x",
+                                "ln(1+x)",
+                                "e^x-1",
+                                "1-cos x"
+                            ],
+                            "formulas": [
+                                "sin x ~ x (x→0)",
+                                "tan x ~ x (x→0)",
+                                "arcsin x ~ x (x→0)",
+                                "arctan x ~ x (x→0)",
+                                "ln(1+x) ~ x (x→0)",
+                                "e^x - 1 ~ x (x→0)",
+                                "1 - cos x ~ x²/2 (x→0)",
+                                "(1+x)^a - 1 ~ ax (x→0)"
+                            ],
+                            "difficulty": 2,
+                            "description": "常用等价无穷小替换公式，用于极限计算"
+                        },
+                        {
+                            "id": "gao_shu_003",
+                            "name": "重要极限",
+                            "keywords": [
+                                "重要极限",
+                                "lim",
+                                "sin x / x",
+                                "e的极限",
+                                "自然常数"
+                            ],
+                            "formulas": [
+                                "lim(x→0) sin x / x = 1",
+                                "lim(x→∞) (1 + 1/x)^x = e",
+                                "lim(x→0) (1 + x)^(1/x) = e"
+                            ],
+                            "difficulty": 2,
+                            "description": "两个重要极限及其变形"
+                        },
+                        {
+                            "id": "gao_shu_004",
+                            "name": "极限运算法则",
+                            "keywords": [
+                                "极限运算",
+                                "四则运算",
+                                "夹逼准则",
+                                "单调有界"
+                            ],
+                            "difficulty": 2,
+                            "description": "极限的四则运算、夹逼准则、单调有界原理"
+                        },
+                        {
+                            "id": "gao_shu_005",
+                            "name": "间断点",
+                            "keywords": [
+                                "间断点",
+                                "连续",
+                                "可去间断点",
+                                "跳跃间断点",
+                                "无穷间断点",
+                                "振荡间断点",
+                                "第一类间断点",
+                                "第二类间断点"
+                            ],
+                            "difficulty": 2,
+                            "description": "间断点的分类：第一类（可去、跳跃）、第二类（无穷、振荡）"
+                        }
+                    ]
+                },
+                {
+                    "chapter": "一元函数微分学",
+                    "knowledge_points": [
+                        {
+                            "id": "gao_shu_010",
+                            "name": "导数的定义",
+                            "keywords": [
+                                "导数定义",
+                                "导数",
+                                "差商极限",
+                                "左导数",
+                                "右导数"
+                            ],
+                            "formulas": [
+                                "f'(x₀) = lim(Δx→0) [f(x₀+Δx) - f(x₀)] / Δx",
+                                "f'(x₀) = lim(x→x₀) [f(x) - f(x₀)] / (x - x₀)"
+                            ],
+                            "difficulty": 2,
+                            "description": "导数的定义式，左导数与右导数"
+                        },
+                        {
+                            "id": "gao_shu_011",
+                            "name": "基本导数公式",
+                            "keywords": [
+                                "导数公式",
+                                "求导",
+                                "幂函数导数",
+                                "指数函数导数",
+                                "对数函数导数",
+                                "三角函数导数",
+                                "反三角函数导数"
+                            ],
+                            "formulas": [
+                                "(x^n)' = nx^(n-1)",
+                                "(e^x)' = e^x",
+                                "(a^x)' = a^x · ln a",
+                                "(ln x)' = 1/x",
+                                "(log_a x)' = 1/(x ln a)",
+                                "(sin x)' = cos x",
+                                "(cos x)' = -sin x",
+                                "(tan x)' = sec²x",
+                                "(cot x)' = -csc²x",
+                                "(sec x)' = sec x · tan x",
+                                "(csc x)' = -csc x · cot x",
+                                "(arcsin x)' = 1/√(1-x²)",
+                                "(arccos x)' = -1/√(1-x²)",
+                                "(arctan x)' = 1/(1+x²)",
+                                "(arccot x)' = -1/(1+x²)"
+                            ],
+                            "difficulty": 1,
+                            "description": "基本初等函数的导数公式表"
+                        },
+                        {
+                            "id": "gao_shu_012",
+                            "name": "求导法则",
+                            "keywords": [
+                                "求导法则",
+                                "乘法法则",
+                                "除法法则",
+                                "链式法则",
+                                "复合函数求导"
+                            ],
+                            "formulas": [
+                                "(u ± v)' = u' ± v'",
+                                "(uv)' = u'v + uv'",
+                                "(u/v)' = (u'v - uv')/v²",
+                                "链式法则: dy/dx = dy/du · du/dx"
+                            ],
+                            "difficulty": 2,
+                            "description": "导数的四则运算法则与复合函数求导的链式法则"
+                        },
+                        {
+                            "id": "gao_shu_013",
+                            "name": "高阶导数",
+                            "keywords": [
+                                "高阶导数",
+                                "二阶导数",
+                                "n阶导数",
+                                "莱布尼茨公式"
+                            ],
+                            "formulas": [
+                                "莱布尼茨公式: (uv)^(n) = Σ C(n,k) u^(k) v^(n-k)"
+                            ],
+                            "difficulty": 3,
+                            "description": "高阶导数的计算，莱布尼茨公式"
+                        },
+                        {
+                            "id": "gao_shu_014",
+                            "name": "微分中值定理",
+                            "keywords": [
+                                "中值定理",
+                                "罗尔定理",
+                                "拉格朗日中值定理",
+                                "柯西中值定理",
+                                "费马引理"
+                            ],
+                            "formulas": [
+                                "罗尔定理: f(a)=f(b) ⟹ ∃ξ∈(a,b), f'(ξ)=0",
+                                "拉格朗日: f(b)-f(a) = f'(ξ)(b-a)",
+                                "柯西定理: [f(b)-f(a)]/[g(b)-g(a)] = f'(ξ)/g'(ξ)"
+                            ],
+                            "difficulty": 3,
+                            "description": "三大中值定理的条件与结论"
+                        },
+                        {
+                            "id": "gao_shu_015",
+                            "name": "洛必达法则",
+                            "keywords": [
+                                "洛必达",
+                                "洛必达法则",
+                                "0比0型",
+                                "无穷比无穷型",
+                                "未定式"
+                            ],
+                            "formulas": [
+                                "0/0型或∞/∞型: lim f(x)/g(x) = lim f'(x)/g'(x)"
+                            ],
+                            "difficulty": 2,
+                            "description": "处理0/0、∞/∞型未定式的极限"
+                        },
+                        {
+                            "id": "gao_shu_016",
+                            "name": "函数的单调性与极值",
+                            "keywords": [
+                                "单调性",
+                                "极值",
+                                "极大值",
+                                "极小值",
+                                "驻点",
+                                "极值点"
+                            ],
+                            "difficulty": 2,
+                            "description": "用导数判断函数单调性，求极值的方法"
+                        },
+                        {
+                            "id": "gao_shu_017",
+                            "name": "曲线的凹凸性与拐点",
+                            "keywords": [
+                                "凹凸性",
+                                "拐点",
+                                "凹函数",
+                                "凸函数",
+                                "二阶导数"
+                            ],
+                            "difficulty": 2,
+                            "description": "用二阶导数判断曲线凹凸性，求拐点"
+                        },
+                        {
+                            "id": "gao_shu_018",
+                            "name": "渐近线",
+                            "keywords": [
+                                "渐近线",
+                                "水平渐近线",
+                                "垂直渐近线",
+                                "斜渐近线"
+                            ],
+                            "difficulty": 2,
+                            "description": "三种渐近线的求法"
+                        }
+                    ]
+                },
+                {
+                    "chapter": "一元函数积分学",
+                    "knowledge_points": [
+                        {
+                            "id": "gao_shu_020",
+                            "name": "不定积分基本公式",
+                            "keywords": [
+                                "不定积分",
+                                "积分公式",
+                                "原函数"
+                            ],
+                            "formulas": [
+                                "∫x^n dx = x^(n+1)/(n+1) + C (n≠-1)",
+                                "∫1/x dx = ln|x| + C",
+                                "∫e^x dx = e^x + C",
+                                "∫a^x dx = a^x/ln a + C",
+                                "∫sin x dx = -cos x + C",
+                                "∫cos x dx = sin x + C",
+                                "∫tan x dx = -ln|cos x| + C",
+                                "∫cot x dx = ln|sin x| + C",
+                                "∫sec²x dx = tan x + C",
+                                "∫csc²x dx = -cot x + C",
+                                "∫sec x dx = ln|sec x + tan x| + C",
+                                "∫csc x dx = ln|csc x - cot x| + C",
+                                "∫1/(1+x²) dx = arctan x + C",
+                                "∫1/√(1-x²) dx = arcsin x + C"
+                            ],
+                            "difficulty": 1,
+                            "description": "基本积分公式表"
+                        },
+                        {
+                            "id": "gao_shu_021",
+                            "name": "换元积分法",
+                            "keywords": [
+                                "换元积分",
+                                "凑微分",
+                                "第一类换元",
+                                "第二类换元",
+                                "变量代换"
+                            ],
+                            "difficulty": 3,
+                            "description": "第一类换元（凑微分法）、第二类换元（变量代换法）"
+                        },
+                        {
+                            "id": "gao_shu_022",
+                            "name": "分部积分法",
+                            "keywords": [
+                                "分部积分",
+                                "积分方法",
+                                "反对幂指三"
+                            ],
+                            "formulas": [
+                                "∫u dv = uv - ∫v du"
+                            ],
+                            "difficulty": 3,
+                            "description": "分部积分公式及选择u、v的原则（反对幂指三）"
+                        },
+                        {
+                            "id": "gao_shu_023",
+                            "name": "定积分",
+                            "keywords": [
+                                "定积分",
+                                "积分上下限",
+                                "牛顿莱布尼茨公式",
+                                "微积分基本定理"
+                            ],
+                            "formulas": [
+                                "牛顿-莱布尼茨公式: ∫[a,b] f(x)dx = F(b) - F(a)",
+                                "对称性: 偶函数∫[-a,a] = 2∫[0,a]，奇函数∫[-a,a] = 0"
+                            ],
+                            "difficulty": 2,
+                            "description": "定积分的定义、性质与牛顿-莱布尼茨公式"
+                        },
+                        {
+                            "id": "gao_shu_024",
+                            "name": "定积分的应用",
+                            "keywords": [
+                                "定积分应用",
+                                "面积",
+                                "体积",
+                                "弧长",
+                                "旋转体体积",
+                                "侧面积"
+                            ],
+                            "formulas": [
+                                "平面图形面积",
+                                "旋转体体积: V = π∫[a,b] f²(x)dx",
+                                "弧长: s = ∫√(1+y'²)dx",
+                                "旋转面侧面积: S = 2π∫y·ds"
+                            ],
+                            "difficulty": 3,
+                            "description": "定积分在几何上的应用：面积、体积、弧长"
+                        },
+                        {
+                            "id": "gao_shu_025",
+                            "name": "反常积分",
+                            "keywords": [
+                                "反常积分",
+                                "广义积分",
+                                "无穷限积分",
+                                "瑕积分",
+                                "收敛",
+                                "发散"
+                            ],
+                            "difficulty": 3,
+                            "description": "无穷限积分与瑕积分的收敛性判断"
+                        }
+                    ]
+                },
+                {
+                    "chapter": "向量代数与空间解析几何",
+                    "knowledge_points": [
+                        {
+                            "id": "gao_shu_030",
+                            "name": "向量运算",
+                            "keywords": [
+                                "向量",
+                                "点积",
+                                "数量积",
+                                "叉积",
+                                "向量积",
+                                "混合积"
+                            ],
+                            "formulas": [
+                                "点积: a·b = |a||b|cos θ = a₁b₁ + a₂b₂ + a₃b₃",
+                                "叉积: |a×b| = |a||b|sin θ，方向由右手定则确定",
+                                "混合积: [a,b,c] = (a×b)·c"
+                            ],
+                            "difficulty": 2,
+                            "description": "向量的点积、叉积与混合积"
+                        },
+                        {
+                            "id": "gao_shu_031",
+                            "name": "平面与直线",
+                            "keywords": [
+                                "平面方程",
+                                "直线方程",
+                                "点法式",
+                                "一般式",
+                                "对称式",
+                                "参数式"
+                            ],
+                            "formulas": [
+                                "平面的点法式: A(x-x₀) + B(y-y₀) + C(z-z₀) = 0",
+                                "平面的一般式: Ax + By + Cz + D = 0",
+                                "直线的对称式: (x-x₀)/m = (y-y₀)/n = (z-z₀)/p",
+                                "直线的参数式: x = x₀ + mt, y = y₀ + nt, z = z₀ + pt"
+                            ],
+                            "difficulty": 2,
+                            "description": "平面与直线的各种方程形式"
+                        },
+                        {
+                            "id": "gao_shu_032",
+                            "name": "二次曲面",
+                            "keywords": [
+                                "二次曲面",
+                                "椭球面",
+                                "抛物面",
+                                "双曲面",
+                                "锥面",
+                                "柱面"
+                            ],
+                            "difficulty": 2,
+                            "description": "常见二次曲面的方程与图形特征"
+                        }
+                    ]
+                },
+                {
+                    "chapter": "多元函数微分学",
+                    "knowledge_points": [
+                        {
+                            "id": "gao_shu_040",
+                            "name": "多元函数的概念",
+                            "keywords": [
+                                "多元函数",
+                                "定义域",
+                                "值域",
+                                "极限",
+                                "连续"
+                            ],
+                            "difficulty": 2,
+                            "description": "多元函数的定义、极限与连续性"
+                        },
+                        {
+                            "id": "gao_shu_041",
+                            "name": "偏导数",
+                            "keywords": [
+                                "偏导数",
+                                "偏微商",
+                                "多元函数求导",
+                                "混合偏导"
+                            ],
+                            "formulas": [
+                                "∂z/∂x = lim(Δx→0) [f(x+Δx,y) - f(x,y)]/Δx",
+                                "∂z/∂y = lim(Δy→0) [f(x,y+Δy) - f(x,y)]/Δy"
+                            ],
+                            "difficulty": 2,
+                            "description": "偏导数的定义与计算"
+                        },
+                        {
+                            "id": "gao_shu_042",
+                            "name": "全微分",
+                            "keywords": [
+                                "全微分",
+                                "可微",
+                                "偏导数连续",
+                                "全增量"
+                            ],
+                            "formulas": [
+                                "dz = (∂z/∂x)dx + (∂z/∂y)dy",
+                                "可微 ⟹ 偏导存在，偏导连续 ⟹ 可微"
+                            ],
+                            "difficulty": 2,
+                            "description": "全微分的定义与可微的条件"
+                        },
+                        {
+                            "id": "gao_shu_043",
+                            "name": "多元复合函数求导",
+                            "keywords": [
+                                "复合函数求导",
+                                "链式法则",
+                                "多元链式法则",
+                                "全导数"
+                            ],
+                            "formulas": [
+                                "∂z/∂x = (∂z/∂u)(∂u/∂x) + (∂z/∂v)(∂v/∂x)"
+                            ],
+                            "difficulty": 3,
+                            "description": "多元复合函数的链式法则"
+                        },
+                        {
+                            "id": "gao_shu_044",
+                            "name": "隐函数求导",
+                            "keywords": [
+                                "隐函数",
+                                "隐函数求导",
+                                "方程组求导"
+                            ],
+                            "formulas": [
+                                "F(x,y,z)=0 ⟹ ∂z/∂x = -F_x/F_z, ∂z/∂y = -F_y/F_z"
+                            ],
+                            "difficulty": 3,
+                            "description": "隐函数存在定理与求导公式"
+                        },
+                        {
+                            "id": "gao_shu_045",
+                            "name": "方向导数与梯度",
+                            "keywords": [
+                                "方向导数",
+                                "梯度",
+                                "grad",
+                                "最速下降方向"
+                            ],
+                            "formulas": [
+                                "方向导数: ∂f/∂l = ∇f · l° = |∇f|cos θ",
+                                "梯度: ∇f = (∂f/∂x, ∂f/∂y, ∂f/∂z)"
+                            ],
+                            "difficulty": 3,
+                            "description": "方向导数与梯度的定义和关系"
+                        },
+                        {
+                            "id": "gao_shu_046",
+                            "name": "多元函数的极值",
+                            "keywords": [
+                                "多元极值",
+                                "无条件极值",
+                                "条件极值",
+                                "拉格朗日乘数法",
+                                "最值"
+                            ],
+                            "formulas": [
+                                "无条件极值: 令∂z/∂x=0, ∂z/∂y=0",
+                                "条件极值: 拉格朗日函数 L = f(x,y) + λφ(x,y)"
+                            ],
+                            "difficulty": 3,
+                            "description": "无条件极值与条件极值的求法，拉格朗日乘数法"
+                        }
+                    ]
+                },
+                {
+                    "chapter": "多元函数积分学",
+                    "knowledge_points": [
+                        {
+                            "id": "gao_shu_050",
+                            "name": "二重积分",
+                            "keywords": [
+                                "二重积分",
+                                "累次积分",
+                                "极坐标",
+                                "积分换序"
+                            ],
+                            "formulas": [
+                                "直角坐标: ∬f(x,y)dxdy",
+                                "极坐标: ∬f(r,θ)rdrdθ",
+                                "x = r cos θ, y = r sin θ"
+                            ],
+                            "difficulty": 3,
+                            "description": "二重积分的计算，直角坐标与极坐标转换"
+                        },
+                        {
+                            "id": "gao_shu_051",
+                            "name": "三重积分",
+                            "keywords": [
+                                "三重积分",
+                                "柱坐标",
+                                "球坐标",
+                                "先一后二",
+                                "先二后一"
+                            ],
+                            "formulas": [
+                                "柱坐标: x = r cos θ, y = r sin θ, z = z, dV = rdrdθdz",
+                                "球坐标: x = r sin φ cos θ, y = r sin φ sin θ, z = r cos φ, dV = r²sin φ drdφdθ"
+                            ],
+                            "difficulty": 3,
+                            "description": "三重积分的计算，三种坐标系的应用"
+                        },
+                        {
+                            "id": "gao_shu_052",
+                            "name": "第一类曲线积分",
+                            "keywords": [
+                                "曲线积分",
+                                "对弧长的曲线积分",
+                                "第一类曲线积分"
+                            ],
+                            "formulas": [
+                                "∫_L f(x,y)ds = ∫_α^β f(x(t),y(t))√(x'²+y'²)dt"
+                            ],
+                            "difficulty": 3,
+                            "description": "第一类曲线积分（对弧长的积分）的计算"
+                        },
+                        {
+                            "id": "gao_shu_053",
+                            "name": "第二类曲线积分",
+                            "keywords": [
+                                "对坐标的曲线积分",
+                                "第二类曲线积分",
+                                "格林公式",
+                                "曲线积分与路径无关"
+                            ],
+                            "formulas": [
+                                "格林公式: ∮_L Pdx + Qdy = ∬_D (∂Q/∂x - ∂P/∂y)dxdy",
+                                "路径无关 ⟺ ∂P/∂y = ∂Q/∂x"
+                            ],
+                            "difficulty": 4,
+                            "description": "第二类曲线积分与格林公式"
+                        },
+                        {
+                            "id": "gao_shu_054",
+                            "name": "第一类曲面积分",
+                            "keywords": [
+                                "曲面积分",
+                                "对面积的曲面积分",
+                                "第一类曲面积分"
+                            ],
+                            "difficulty": 3,
+                            "description": "第一类曲面积分（对面积的积分）的计算"
+                        },
+                        {
+                            "id": "gao_shu_055",
+                            "name": "第二类曲面积分",
+                            "keywords": [
+                                "对坐标的曲面积分",
+                                "第二类曲面积分",
+                                "高斯公式",
+                                "斯托克斯公式"
+                            ],
+                            "formulas": [
+                                "高斯公式: ∯_Σ Pdydz + Qdzdx + Rdxdy = ∭_Ω (∂P/∂x + ∂Q/∂y + ∂R/∂z)dV",
+                                "斯托克斯公式: ∮_Γ Pdx + Qdy + Rdz = ∬_Σ (rot A)·n dS"
+                            ],
+                            "difficulty": 4,
+                            "description": "第二类曲面积分与高斯公式、斯托克斯公式"
+                        }
+                    ]
+                },
+                {
+                    "chapter": "无穷级数",
+                    "knowledge_points": [
+                        {
+                            "id": "gao_shu_060",
+                            "name": "数项级数的概念",
+                            "keywords": [
+                                "级数",
+                                "收敛",
+                                "发散",
+                                "部分和",
+                                "级数收敛"
+                            ],
+                            "formulas": [
+                                "级数收敛 ⟺ 部分和数列极限存在",
+                                "收敛必要条件: lim a_n = 0"
+                            ],
+                            "difficulty": 2,
+                            "description": "级数收敛与发散的概念"
+                        },
+                        {
+                            "id": "gao_shu_061",
+                            "name": "正项级数审敛法",
+                            "keywords": [
+                                "正项级数",
+                                "比较审敛法",
+                                "比值审敛法",
+                                "根值审敛法",
+                                "p级数"
+                            ],
+                            "formulas": [
+                                "比较审敛法: 与已知收敛/发散级数比较",
+                                "比值审敛法: ρ = lim|a_{n+1}/a_n|, ρ<1收敛, ρ>1发散",
+                                "根值审敛法: ρ = lim √[n]|a_n|",
+                                "p级数: Σ1/n^p, p>1收敛, p≤1发散"
+                            ],
+                            "difficulty": 3,
+                            "description": "正项级数的各种审敛方法"
+                        },
+                        {
+                            "id": "gao_shu_062",
+                            "name": "交错级数",
+                            "keywords": [
+                                "交错级数",
+                                "莱布尼茨判别法",
+                                "条件收敛",
+                                "绝对收敛"
+                            ],
+                            "formulas": [
+                                "莱布尼茨判别法: 单调递减趋于0 ⟹ 收敛",
+                                "绝对收敛: Σ|a_n|收敛 ⟹ Σa_n收敛"
+                            ],
+                            "difficulty": 3,
+                            "description": "交错级数的审敛与条件收敛、绝对收敛"
+                        },
+                        {
+                            "id": "gao_shu_063",
+                            "name": "幂级数",
+                            "keywords": [
+                                "幂级数",
+                                "收敛半径",
+                                "收敛区间",
+                                "收敛域",
+                                "阿贝尔定理"
+                            ],
+                            "formulas": [
+                                "收敛半径: R = lim |a_n/a_{n+1}| 或 R = 1/lim √[n]|a_n|",
+                                "收敛区间: |x| < R"
+                            ],
+                            "difficulty": 3,
+                            "description": "幂级数的收敛半径与收敛域"
+                        },
+                        {
+                            "id": "gao_shu_064",
+                            "name": "函数的幂级数展开",
+                            "keywords": [
+                                "泰勒级数",
+                                "麦克劳林级数",
+                                "函数展开",
+                                "泰勒展开"
+                            ],
+                            "formulas": [
+                                "e^x = Σ x^n/n! (x∈R)",
+                                "sin x = Σ (-1)^n x^{2n+1}/(2n+1)! (x∈R)",
+                                "cos x = Σ (-1)^n x^{2n}/(2n)! (x∈R)",
+                                "ln(1+x) = Σ (-1)^{n-1} x^n/n (x∈(-1,1])",
+                                "1/(1-x) = Σ x^n (x∈(-1,1))",
+                                "(1+x)^α = Σ C(α,n) x^n"
+                            ],
+                            "difficulty": 3,
+                            "description": "常用函数的泰勒（麦克劳林）展开式"
+                        },
+                        {
+                            "id": "gao_shu_065",
+                            "name": "傅里叶级数",
+                            "keywords": [
+                                "傅里叶级数",
+                                "傅里叶展开",
+                                "周期函数",
+                                "三角级数",
+                                "狄利克雷定理"
+                            ],
+                            "formulas": [
+                                "f(x) ~ a₀/2 + Σ(a_n cos nx + b_n sin nx)",
+                                "a_n = (1/π)∫_{-π}^{π} f(x)cos nx dx",
+                                "b_n = (1/π)∫_{-π}^{π} f(x)sin nx dx"
+                            ],
+                            "difficulty": 3,
+                            "description": "傅里叶级数展开与狄利克雷收敛定理"
+                        }
+                    ]
+                },
+                {
+                    "chapter": "常微分方程",
+                    "knowledge_points": [
+                        {
+                            "id": "gao_shu_070",
+                            "name": "微分方程基本概念",
+                            "keywords": [
+                                "微分方程",
+                                "阶数",
+                                "通解",
+                                "特解",
+                                "初始条件"
+                            ],
+                            "difficulty": 1,
+                            "description": "微分方程的基本概念与术语"
+                        },
+                        {
+                            "id": "gao_shu_071",
+                            "name": "一阶微分方程",
+                            "keywords": [
+                                "一阶微分方程",
+                                "可分离变量",
+                                "齐次方程",
+                                "一阶线性方程",
+                                "伯努利方程"
+                            ],
+                            "formulas": [
+                                "可分离变量: dy/dx = f(x)g(y) ⟹ ∫dy/g(y) = ∫f(x)dx",
+                                "齐次方程: dy/dx = φ(y/x), 令y/x = u",
+                                "一阶线性: y' + P(x)y = Q(x), y = e^{-∫Pdx}(∫Qe^{∫Pdx}dx + C)"
+                            ],
+                            "difficulty": 3,
+                            "description": "一阶微分方程的解法"
+                        },
+                        {
+                            "id": "gao_shu_072",
+                            "name": "可降阶的高阶微分方程",
+                            "keywords": [
+                                "降阶",
+                                "y''=f(x)",
+                                "y''=f(x,y')",
+                                "y''=f(y,y')"
+                            ],
+                            "difficulty": 3,
+                            "description": "三种可降阶的高阶微分方程的解法"
+                        },
+                        {
+                            "id": "gao_shu_073",
+                            "name": "二阶常系数线性微分方程",
+                            "keywords": [
+                                "二阶线性微分方程",
+                                "常系数",
+                                "齐次",
+                                "非齐次",
+                                "特征方程",
+                                "待定系数法"
+                            ],
+                            "formulas": [
+                                "齐次: y'' + py' + qy = 0, 特征方程 r² + pr + q = 0",
+                                "非齐次: y'' + py' + qy = f(x), 通解 = 齐次通解 + 非齐次特解"
+                            ],
+                            "difficulty": 3,
+                            "description": "二阶常系数线性微分方程的解法"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "线性代数",
+            "chapters": [
+                {
+                    "chapter": "行列式",
+                    "knowledge_points": [
+                        {
+                            "id": "xian_dai_001",
+                            "name": "行列式的定义与性质",
+                            "keywords": [
+                                "行列式",
+                                "n阶行列式",
+                                "展开定理",
+                                "代数余子式"
+                            ],
+                            "formulas": [
+                                "|A| = Σ (-1)^{τ(j₁j₂...jₙ)} a₁j₁a₂j₂...aₙjₙ",
+                                "展开定理: |A| = aᵢ₁Aᵢ₁ + aᵢ₂Aᵢ₂ + ... + aᵢₙAᵢₙ"
+                            ],
+                            "difficulty": 2,
+                            "description": "行列式的定义与按行（列）展开定理"
+                        },
+                        {
+                            "id": "xian_dai_002",
+                            "name": "行列式的计算",
+                            "keywords": [
+                                "行列式计算",
+                                "三角化",
+                                "范德蒙德行列式",
+                                "对角行列式"
+                            ],
+                            "formulas": [
+                                "范德蒙德行列式",
+                                "上(下)三角行列式 = 主对角线元素之积"
+                            ],
+                            "difficulty": 2,
+                            "description": "行列式的计算技巧与特殊行列式"
+                        },
+                        {
+                            "id": "xian_dai_003",
+                            "name": "克拉默法则",
+                            "keywords": [
+                                "克拉默法则",
+                                "线性方程组",
+                                "行列式求解"
+                            ],
+                            "difficulty": 2,
+                            "description": "用行列式求解线性方程组"
+                        }
+                    ]
+                },
+                {
+                    "chapter": "矩阵",
+                    "knowledge_points": [
+                        {
+                            "id": "xian_dai_010",
+                            "name": "矩阵的运算",
+                            "keywords": [
+                                "矩阵运算",
+                                "矩阵加法",
+                                "矩阵乘法",
+                                "转置",
+                                "矩阵的幂"
+                            ],
+                            "formulas": [
+                                "(AB)^T = B^T A^T",
+                                "(AB)^{-1} = B^{-1} A^{-1}"
+                            ],
+                            "difficulty": 2,
+                            "description": "矩阵的加法、乘法、转置等运算"
+                        },
+                        {
+                            "id": "xian_dai_011",
+                            "name": "逆矩阵",
+                            "keywords": [
+                                "逆矩阵",
+                                "可逆矩阵",
+                                "矩阵求逆",
+                                "伴随矩阵法",
+                                "初等变换法"
+                            ],
+                            "formulas": [
+                                "A可逆 ⟺ |A| ≠ 0",
+                                "A^{-1} = A*/|A| (伴随矩阵法)"
+                            ],
+                            "difficulty": 2,
+                            "description": "逆矩阵的定义与求法"
+                        },
+                        {
+                            "id": "xian_dai_012",
+                            "name": "伴随矩阵",
+                            "keywords": [
+                                "伴随矩阵",
+                                "A*",
+                                "代数余子式"
+                            ],
+                            "formulas": [
+                                "AA* = A*A = |A|E",
+                                "(A*)^{-1} = A/|A|"
+                            ],
+                            "difficulty": 2,
+                            "description": "伴随矩阵的定义与性质"
+                        },
+                        {
+                            "id": "xian_dai_013",
+                            "name": "矩阵的秩",
+                            "keywords": [
+                                "矩阵的秩",
+                                "秩",
+                                "r(A)",
+                                "初等变换",
+                                "秩的性质"
+                            ],
+                            "formulas": [
+                                "r(AB) ≤ min(r(A), r(B))",
+                                "r(A + B) ≤ r(A) + r(B)"
+                            ],
+                            "difficulty": 3,
+                            "description": "矩阵秩的定义、求法与性质"
+                        },
+                        {
+                            "id": "xian_dai_014",
+                            "name": "初等变换与初等矩阵",
+                            "keywords": [
+                                "初等变换",
+                                "初等矩阵",
+                                "行变换",
+                                "列变换",
+                                "等价标准形"
+                            ],
+                            "difficulty": 2,
+                            "description": "初等变换与初等矩阵的关系"
+                        }
+                    ]
+                },
+                {
+                    "chapter": "向量",
+                    "knowledge_points": [
+                        {
+                            "id": "xian_dai_020",
+                            "name": "向量的线性运算",
+                            "keywords": [
+                                "向量",
+                                "线性组合",
+                                "线性表示",
+                                "线性相关",
+                                "线性无关"
+                            ],
+                            "difficulty": 2,
+                            "description": "向量的线性组合、线性相关与线性无关"
+                        },
+                        {
+                            "id": "xian_dai_021",
+                            "name": "向量组的秩",
+                            "keywords": [
+                                "向量组的秩",
+                                "极大线性无关组",
+                                "等价向量组"
+                            ],
+                            "formulas": [
+                                "向量组α₁,...,αₛ可由β₁,...,βₜ线性表示 ⟹ r(α) ≤ r(β)"
+                            ],
+                            "difficulty": 3,
+                            "description": "向量组的秩与极大线性无关组"
+                        },
+                        {
+                            "id": "xian_dai_022",
+                            "name": "内积与正交",
+                            "keywords": [
+                                "内积",
+                                "正交",
+                                "正交向量组",
+                                "施密特正交化",
+                                "标准正交基"
+                            ],
+                            "formulas": [
+                                "内积: (α,β) = α₁β₁ + α₂β₂ + ... + αₙβₙ",
+                                "施密特正交化: β₁ = α₁, β₂ = α₂ - ((α₂,β₁)/(β₁,β₁))β₁, ..."
+                            ],
+                            "difficulty": 3,
+                            "description": "内积、正交向量组与施密特正交化方法"
+                        }
+                    ]
+                },
+                {
+                    "chapter": "线性方程组",
+                    "knowledge_points": [
+                        {
+                            "id": "xian_dai_030",
+                            "name": "齐次线性方程组",
+                            "keywords": [
+                                "齐次方程组",
+                                "Ax=0",
+                                "基础解系",
+                                "通解",
+                                "解空间"
+                            ],
+                            "formulas": [
+                                "Ax = 0 有非零解 ⟺ r(A) < n",
+                                "基础解系含 n - r(A) 个解向量"
+                            ],
+                            "difficulty": 3,
+                            "description": "齐次线性方程组解的结构"
+                        },
+                        {
+                            "id": "xian_dai_031",
+                            "name": "非齐次线性方程组",
+                            "keywords": [
+                                "非齐次方程组",
+                                "Ax=b",
+                                "解的存在性",
+                                "解的结构"
+                            ],
+                            "formulas": [
+                                "Ax = b 有解 ⟺ r(A) = r(A|b)",
+                                "通解 = 特解 + 对应齐次方程组的通解"
+                            ],
+                            "difficulty": 3,
+                            "description": "非齐次线性方程组解的存在性与结构"
+                        }
+                    ]
+                },
+                {
+                    "chapter": "特征值与特征向量",
+                    "knowledge_points": [
+                        {
+                            "id": "xian_dai_040",
+                            "name": "特征值与特征向量的定义",
+                            "keywords": [
+                                "特征值",
+                                "特征向量",
+                                "特征方程",
+                                "Ax=λx"
+                            ],
+                            "formulas": [
+                                "特征方程: |λE - A| = 0",
+                                "特征向量: (λE - A)x = 0的非零解"
+                            ],
+                            "difficulty": 3,
+                            "description": "特征值与特征向量的定义与求法"
+                        },
+                        {
+                            "id": "xian_dai_041",
+                            "name": "特征值与特征向量的性质",
+                            "keywords": [
+                                "特征值性质",
+                                "迹",
+                                "行列式",
+                                "特征值之和",
+                                "特征值之积"
+                            ],
+                            "formulas": [
+                                "Σλᵢ = tr(A) = Σaᵢᵢ (迹)",
+                                "Πλᵢ = |A| (行列式)",
+                                "不同特征值对应的特征向量线性无关"
+                            ],
+                            "difficulty": 3,
+                            "description": "特征值与特征向量的重要性质"
+                        },
+                        {
+                            "id": "xian_dai_042",
+                            "name": "矩阵的相似对角化",
+                            "keywords": [
+                                "相似",
+                                "对角化",
+                                "可对角化",
+                                "相似矩阵",
+                                "P^{-1}AP"
+                            ],
+                            "formulas": [
+                                "A可对角化 ⟺ A有n个线性无关的特征向量",
+                                "P^{-1}AP = Λ (对角矩阵)"
+                            ],
+                            "difficulty": 3,
+                            "description": "矩阵相似对角化的条件与方法"
+                        },
+                        {
+                            "id": "xian_dai_043",
+                            "name": "实对称矩阵",
+                            "keywords": [
+                                "实对称矩阵",
+                                "正交对角化",
+                                "特征值实数",
+                                "特征向量正交"
+                            ],
+                            "formulas": [
+                                "实对称矩阵的特征值都是实数",
+                                "不同特征值对应的特征向量正交",
+                                "实对称矩阵必可正交对角化"
+                            ],
+                            "difficulty": 3,
+                            "description": "实对称矩阵的特殊性质"
+                        }
+                    ]
+                },
+                {
+                    "chapter": "二次型",
+                    "knowledge_points": [
+                        {
+                            "id": "xian_dai_050",
+                            "name": "二次型及其标准形",
+                            "keywords": [
+                                "二次型",
+                                "标准形",
+                                "配方法",
+                                "正交变换",
+                                "惯性定理"
+                            ],
+                            "formulas": [
+                                "二次型: f = x^T A x (A为对称矩阵)",
+                                "正交变换化标准形: Q^T A Q = Λ"
+                            ],
+                            "difficulty": 3,
+                            "description": "二次型的定义与化标准形"
+                        },
+                        {
+                            "id": "xian_dai_051",
+                            "name": "正定二次型",
+                            "keywords": [
+                                "正定",
+                                "负定",
+                                "不定",
+                                "正定矩阵",
+                                "正定性判定"
+                            ],
+                            "formulas": [
+                                "正定 ⟺ 所有特征值 > 0",
+                                "正定 ⟺ 所有顺序主子式 > 0"
+                            ],
+                            "difficulty": 3,
+                            "description": "二次型正定性的判定"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "概率论与数理统计",
+            "chapters": [
+                {
+                    "chapter": "随机事件与概率",
+                    "knowledge_points": [
+                        {
+                            "id": "gai_lv_001",
+                            "name": "随机事件",
+                            "keywords": [
+                                "随机事件",
+                                "样本空间",
+                                "事件运算",
+                                "包含",
+                                "相等",
+                                "互斥",
+                                "对立"
+                            ],
+                            "difficulty": 1,
+                            "description": "随机事件的概念与运算"
+                        },
+                        {
+                            "id": "gai_lv_002",
+                            "name": "古典概型与几何概型",
+                            "keywords": [
+                                "古典概型",
+                                "几何概型",
+                                "等可能概型"
+                            ],
+                            "formulas": [
+                                "古典概型: P(A) = 有利情况数 / 总情况数"
+                            ],
+                            "difficulty": 2,
+                            "description": "古典概型与几何概型的概率计算"
+                        },
+                        {
+                            "id": "gai_lv_003",
+                            "name": "概率的基本性质",
+                            "keywords": [
+                                "概率性质",
+                                "加法公式",
+                                "减法公式",
+                                "对立事件概率"
+                            ],
+                            "formulas": [
+                                "P(A∪B) = P(A) + P(B) - P(AB)",
+                                "P(A-B) = P(A) - P(AB)"
+                            ],
+                            "difficulty": 2,
+                            "description": "概率的基本性质与运算公式"
+                        },
+                        {
+                            "id": "gai_lv_004",
+                            "name": "条件概率",
+                            "keywords": [
+                                "条件概率",
+                                "P(A|B)",
+                                "乘法公式"
+                            ],
+                            "formulas": [
+                                "P(A|B) = P(AB)/P(B) (P(B) > 0)",
+                                "乘法公式: P(AB) = P(A)P(B|A)"
+                            ],
+                            "difficulty": 2,
+                            "description": "条件概率与乘法公式"
+                        },
+                        {
+                            "id": "gai_lv_005",
+                            "name": "全概率公式与贝叶斯公式",
+                            "keywords": [
+                                "全概率公式",
+                                "贝叶斯公式",
+                                "后验概率",
+                                "先验概率"
+                            ],
+                            "formulas": [
+                                "全概率公式: P(A) = Σ P(Bᵢ)P(A|Bᵢ)",
+                                "贝叶斯公式: P(Bᵢ|A) = P(Bᵢ)P(A|Bᵢ)/P(A)"
+                            ],
+                            "difficulty": 3,
+                            "description": "全概率公式与贝叶斯公式的应用"
+                        },
+                        {
+                            "id": "gai_lv_006",
+                            "name": "事件的独立性",
+                            "keywords": [
+                                "独立",
+                                "相互独立",
+                                "独立事件",
+                                "独立重复试验"
+                            ],
+                            "formulas": [
+                                "A与B独立 ⟺ P(AB) = P(A)P(B)"
+                            ],
+                            "difficulty": 2,
+                            "description": "事件独立性的定义与判定"
+                        }
+                    ]
+                },
+                {
+                    "chapter": "随机变量及其分布",
+                    "knowledge_points": [
+                        {
+                            "id": "gai_lv_010",
+                            "name": "随机变量与分布函数",
+                            "keywords": [
+                                "随机变量",
+                                "分布函数",
+                                "F(x)",
+                                "概率分布"
+                            ],
+                            "formulas": [
+                                "分布函数: F(x) = P(X ≤ x)"
+                            ],
+                            "difficulty": 2,
+                            "description": "随机变量与分布函数的概念"
+                        },
+                        {
+                            "id": "gai_lv_011",
+                            "name": "离散型随机变量",
+                            "keywords": [
+                                "离散型",
+                                "分布律",
+                                "0-1分布",
+                                "二项分布",
+                                "泊松分布",
+                                "几何分布"
+                            ],
+                            "formulas": [
+                                "0-1分布: P(X=k) = p^k(1-p)^{1-k}, k=0,1",
+                                "二项分布 B(n,p): P(X=k) = C(n,k)p^k(1-p)^{n-k}",
+                                "泊松分布 P(λ): P(X=k) = λ^k e^{-λ}/k!"
+                            ],
+                            "difficulty": 2,
+                            "description": "常见离散型分布及其性质"
+                        },
+                        {
+                            "id": "gai_lv_012",
+                            "name": "连续型随机变量",
+                            "keywords": [
+                                "连续型",
+                                "概率密度",
+                                "均匀分布",
+                                "指数分布",
+                                "正态分布"
+                            ],
+                            "formulas": [
+                                "均匀分布 U(a,b): f(x) = 1/(b-a), x∈[a,b]",
+                                "指数分布 E(λ): f(x) = λe^{-λx}, x>0",
+                                "正态分布 N(μ,σ²): f(x) = (1/√(2π)σ)e^{-(x-μ)²/(2σ²)}"
+                            ],
+                            "difficulty": 2,
+                            "description": "常见连续型分布及其性质"
+                        },
+                        {
+                            "id": "gai_lv_013",
+                            "name": "随机变量函数的分布",
+                            "keywords": [
+                                "函数分布",
+                                "Y=g(X)",
+                                "分布函数法",
+                                "公式法"
+                            ],
+                            "difficulty": 3,
+                            "description": "随机变量函数的分布求法"
+                        }
+                    ]
+                },
+                {
+                    "chapter": "多维随机变量",
+                    "knowledge_points": [
+                        {
+                            "id": "gai_lv_020",
+                            "name": "二维随机变量",
+                            "keywords": [
+                                "二维随机变量",
+                                "联合分布",
+                                "联合分布函数",
+                                "联合概率密度"
+                            ],
+                            "difficulty": 3,
+                            "description": "二维随机变量的联合分布"
+                        },
+                        {
+                            "id": "gai_lv_021",
+                            "name": "边缘分布",
+                            "keywords": [
+                                "边缘分布",
+                                "边缘分布律",
+                                "边缘概率密度"
+                            ],
+                            "formulas": [
+                                "边缘密度: f_X(x) = ∫ f(x,y)dy"
+                            ],
+                            "difficulty": 3,
+                            "description": "由联合分布求边缘分布"
+                        },
+                        {
+                            "id": "gai_lv_022",
+                            "name": "条件分布",
+                            "keywords": [
+                                "条件分布",
+                                "条件概率密度"
+                            ],
+                            "formulas": [
+                                "f_{X|Y}(x|y) = f(x,y)/f_Y(y)"
+                            ],
+                            "difficulty": 3,
+                            "description": "条件分布的概念与计算"
+                        },
+                        {
+                            "id": "gai_lv_023",
+                            "name": "随机变量的独立性",
+                            "keywords": [
+                                "独立",
+                                "随机变量独立",
+                                "独立判定"
+                            ],
+                            "formulas": [
+                                "X与Y独立 ⟺ F(x,y) = F_X(x)F_Y(y)",
+                                "X与Y独立 ⟺ f(x,y) = f_X(x)f_Y(y)"
+                            ],
+                            "difficulty": 3,
+                            "description": "随机变量独立的定义与判定"
+                        },
+                        {
+                            "id": "gai_lv_024",
+                            "name": "二维随机变量函数的分布",
+                            "keywords": [
+                                "二维函数分布",
+                                "Z=X+Y",
+                                "Z=max",
+                                "Z=min",
+                                "卷积公式"
+                            ],
+                            "formulas": [
+                                "Z = X + Y: f_Z(z) = ∫ f_X(x)f_Y(z-x)dx (卷积公式)"
+                            ],
+                            "difficulty": 4,
+                            "description": "二维随机变量函数分布的求法"
+                        }
+                    ]
+                },
+                {
+                    "chapter": "数字特征",
+                    "knowledge_points": [
+                        {
+                            "id": "gai_lv_030",
+                            "name": "数学期望",
+                            "keywords": [
+                                "期望",
+                                "数学期望",
+                                "E(X)",
+                                "均值"
+                            ],
+                            "formulas": [
+                                "离散型: E(X) = Σ x_k p_k",
+                                "连续型: E(X) = ∫ x f(x) dx",
+                                "E(g(X)) = ∫ g(x) f(x) dx"
+                            ],
+                            "difficulty": 2,
+                            "description": "数学期望的定义与性质"
+                        },
+                        {
+                            "id": "gai_lv_031",
+                            "name": "方差",
+                            "keywords": [
+                                "方差",
+                                "D(X)",
+                                "Var(X)",
+                                "标准差"
+                            ],
+                            "formulas": [
+                                "D(X) = E(X²) - [E(X)]²",
+                                "D(X) = E[(X - E(X))²]",
+                                "D(aX + b) = a²D(X)"
+                            ],
+                            "difficulty": 2,
+                            "description": "方差的定义、计算与性质"
+                        },
+                        {
+                            "id": "gai_lv_032",
+                            "name": "协方差与相关系数",
+                            "keywords": [
+                                "协方差",
+                                "Cov",
+                                "相关系数",
+                                "ρ",
+                                "相关性"
+                            ],
+                            "formulas": [
+                                "Cov(X,Y) = E[(X-E(X))(Y-E(Y))]",
+                                "Cov(X,Y) = E(XY) - E(X)E(Y)",
+                                "ρ = Cov(X,Y)/√(D(X)D(Y))",
+                                "|ρ| ≤ 1, ρ = ±1 ⟺ Y = aX + b"
+                            ],
+                            "difficulty": 3,
+                            "description": "协方差与相关系数的定义和性质"
+                        },
+                        {
+                            "id": "gai_lv_033",
+                            "name": "常用分布的期望与方差",
+                            "keywords": [
+                                "分布期望",
+                                "分布方差",
+                                "二项分布期望",
+                                "正态分布期望",
+                                "泊松分布期望"
+                            ],
+                            "formulas": [
+                                "B(n,p): E = np, D = np(1-p)",
+                                "P(λ): E = D = λ",
+                                "U(a,b): E = (a+b)/2, D = (b-a)²/12",
+                                "E(λ): E = 1/λ, D = 1/λ²",
+                                "N(μ,σ²): E = μ, D = σ²"
+                            ],
+                            "difficulty": 2,
+                            "description": "常用分布的期望与方差速查"
+                        }
+                    ]
+                },
+                {
+                    "chapter": "大数定律与中心极限定理",
+                    "knowledge_points": [
+                        {
+                            "id": "gai_lv_040",
+                            "name": "切比雪夫不等式",
+                            "keywords": [
+                                "切比雪夫不等式",
+                                "概率估计",
+                                "方差应用"
+                            ],
+                            "formulas": [
+                                "P(|X - E(X)| ≥ ε) ≤ D(X)/ε²"
+                            ],
+                            "difficulty": 2,
+                            "description": "切比雪夫不等式及其应用"
+                        },
+                        {
+                            "id": "gai_lv_041",
+                            "name": "大数定律",
+                            "keywords": [
+                                "大数定律",
+                                "辛钦大数定律",
+                                "伯努利大数定律",
+                                "依概率收敛"
+                            ],
+                            "difficulty": 3,
+                            "description": "大数定律的表述与应用"
+                        },
+                        {
+                            "id": "gai_lv_042",
+                            "name": "中心极限定理",
+                            "keywords": [
+                                "中心极限定理",
+                                "列维-林德伯格定理",
+                                "棣莫弗-拉普拉斯定理",
+                                "正态近似"
+                            ],
+                            "formulas": [
+                                "∑Xᵢ 近似服从 N(nμ, nσ²)",
+                                "(∑Xᵢ - nμ)/√(nσ²) 近似服从 N(0,1)"
+                            ],
+                            "difficulty": 3,
+                            "description": "中心极限定理及其应用"
+                        }
+                    ]
+                },
+                {
+                    "chapter": "数理统计基础",
+                    "knowledge_points": [
+                        {
+                            "id": "gai_lv_050",
+                            "name": "统计量",
+                            "keywords": [
+                                "统计量",
+                                "样本均值",
+                                "样本方差",
+                                "样本矩"
+                            ],
+                            "formulas": [
+                                "样本均值: X̄ = (1/n)∑Xᵢ",
+                                "样本方差: S² = (1/(n-1))∑(Xᵢ - X̄)²"
+                            ],
+                            "difficulty": 2,
+                            "description": "常用统计量的定义"
+                        },
+                        {
+                            "id": "gai_lv_051",
+                            "name": "三大抽样分布",
+                            "keywords": [
+                                "抽样分布",
+                                "卡方分布",
+                                "χ²分布",
+                                "t分布",
+                                "F分布"
+                            ],
+                            "formulas": [
+                                "χ²(n): X₁² + X₂² + ... + Xₙ², Xᵢ~N(0,1)",
+                                "t(n): T = X/√(Y/n), X~N(0,1), Y~χ²(n)",
+                                "F(m,n): F = (U/m)/(V/n), U~χ²(m), V~χ²(n)"
+                            ],
+                            "difficulty": 3,
+                            "description": "χ²分布、t分布、F分布的定义与性质"
+                        },
+                        {
+                            "id": "gai_lv_052",
+                            "name": "参数估计",
+                            "keywords": [
+                                "参数估计",
+                                "点估计",
+                                "矩估计",
+                                "最大似然估计",
+                                "MLE"
+                            ],
+                            "difficulty": 3,
+                            "description": "矩估计法与最大似然估计法"
+                        },
+                        {
+                            "id": "gai_lv_053",
+                            "name": "区间估计",
+                            "keywords": [
+                                "区间估计",
+                                "置信区间",
+                                "置信度",
+                                "置信水平"
+                            ],
+                            "difficulty": 3,
+                            "description": "区间估计的概念与方法"
+                        },
+                        {
+                            "id": "gai_lv_054",
+                            "name": "假设检验",
+                            "keywords": [
+                                "假设检验",
+                                "原假设",
+                                "备择假设",
+                                "显著性水平",
+                                "拒绝域",
+                                "p值"
+                            ],
+                            "difficulty": 3,
+                            "description": "假设检验的基本概念与方法"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "difficulty_levels": {
+        "1": "基础概念",
+        "2": "基本方法",
+        "3": "综合应用",
+        "4": "难度较大"
+    }
+}

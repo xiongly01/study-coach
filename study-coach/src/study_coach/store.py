@@ -217,11 +217,6 @@ class Store:
         self._write_text(path, content)
         return path
 
-    # ---- Lifestyle routines ----
-
-    def load_skincare_routine(self) -> dict[str, Any] | None:
-        return self._read_json(self.root / "routines" / "skincare.json")
-
     # ---- Knowledge-point canonical dictionary ----
 
     def load_kp_canon(self) -> dict[str, str]:

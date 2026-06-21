@@ -1,0 +1,87 @@
+{
+  "date": "2026-06-21",
+  "tasks": [
+    {
+      "id": "t212c50e4",
+      "subject": "数学一",
+      "content": "[顺延] 数学复习",
+      "planned_minutes": 210,
+      "actual_minutes": 0,
+      "done": false,
+      "knowledge_points": [],
+      "preview_for_tomorrow": []
+    },
+    {
+      "id": "t522a8814",
+      "subject": "英语一",
+      "content": "[顺延] 英语复习",
+      "planned_minutes": 90,
+      "actual_minutes": 0,
+      "done": false,
+      "knowledge_points": [],
+      "preview_for_tomorrow": []
+    },
+    {
+      "id": "t2d20fb2d",
+      "subject": "政治",
+      "content": "[顺延] 政治复习",
+      "planned_minutes": 20,
+      "actual_minutes": 0,
+      "done": false,
+      "knowledge_points": [],
+      "preview_for_tomorrow": []
+    },
+    {
+      "id": "t66a2c679",
+      "subject": "408",
+      "content": "[顺延] 专业课复习",
+      "planned_minutes": 140,
+      "actual_minutes": 0,
+      "done": false,
+      "knowledge_points": [],
+      "preview_for_tomorrow": []
+    },
+    {
+      "id": "t8add4ee1",
+      "subject": "复习",
+      "content": "[顺延] 错题复查 1 题（按知识点弱点）",
+      "planned_minutes": 8,
+      "actual_minutes": 0,
+      "done": true,
+      "knowledge_points": [],
+      "preview_for_tomorrow": []
+    },
+    {
+      "id": "t14c6dc1b",
+      "subject": "护肤",
+      "content": "[顺延] 夜间护肤·修护日（修护屏障+淡印）：温和洁面；可复美精华全脸；377面霜全脸（停用阿达帕林和班赛，集中修护屏障、淡化痘印）",
+      "planned_minutes": 15,
+      "actual_minutes": 0,
+      "done": true,
+      "knowledge_points": [],
+      "preview_for_tomorrow": []
+    },
+    {
+      "id": "t53f1aff1",
+      "subject": "复习",
+      "content": "错题复查 1 题（按知识点弱点）",
+      "planned_minutes": 8,
+      "actual_minutes": 0,
+      "done": true,
+      "knowledge_points": [],
+      "preview_for_tomorrow": []
+    },
+    {
+      "id": "t3751fd10",
+      "subject": "护肤",
+      "content": "晨间护肤（保湿+防护）：洁面；水乳；B5保湿精华露；点涂药物（有红肿炎性痘痘时：过氧苯甲酰或夫西地酸，无则跳过）；防晒（必须）",
+      "planned_minutes": 10,
+      "actual_minutes": 0,
+      "done": false,
+      "knowledge_points": [],
+      "preview_for_tomorrow": []
+    }
+  ],
+  "pomodoros": [],
+  "reflection": null
+}

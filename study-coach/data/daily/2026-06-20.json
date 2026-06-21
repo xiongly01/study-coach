@@ -1,0 +1,115 @@
+{
+  "date": "2026-06-20",
+  "tasks": [
+    {
+      "id": "tc537b744",
+      "subject": "数学一",
+      "content": "数学复习",
+      "planned_minutes": 210,
+      "actual_minutes": 0,
+      "done": false,
+      "knowledge_points": [
+        "极限存在准则",
+        "夹逼准则",
+        "单调有界准则"
+      ],
+      "preview_for_tomorrow": [
+        "两个重要极限",
+        "无穷小比较与等价代换",
+        "连续性与间断点分类",
+        "闭区间连续函数性质"
+      ]
+    },
+    {
+      "id": "t473c6dae",
+      "subject": "英语一",
+      "content": "英语复习",
+      "planned_minutes": 90,
+      "actual_minutes": 0,
+      "done": false,
+      "knowledge_points": [
+        "5500 词汇",
+        "熟词生义",
+        "近义辨析"
+      ],
+      "preview_for_tomorrow": [
+        "词组搭配",
+        "从句嵌套",
+        "非谓语动词",
+        "倒装与省略",
+        "分隔结构"
+      ]
+    },
+    {
+      "id": "t42731df5",
+      "subject": "政治",
+      "content": "政治复习",
+      "planned_minutes": 20,
+      "actual_minutes": 0,
+      "done": false,
+      "knowledge_points": [
+        "物质与意识",
+        "对立统一规律",
+        "量变质变规律"
+      ],
+      "preview_for_tomorrow": [
+        "否定之否定规律",
+        "实践与认识",
+        "真理",
+        "社会基本矛盾",
+        "群众史观"
+      ]
+    },
+    {
+      "id": "td6b4108d",
+      "subject": "408",
+      "content": "专业课复习",
+      "planned_minutes": 140,
+      "actual_minutes": 0,
+      "done": false,
+      "knowledge_points": [
+        "二叉树性质与遍历",
+        "线索二叉树",
+        "哈夫曼树与编码"
+      ],
+      "preview_for_tomorrow": [
+        "并查集",
+        "二叉排序树",
+        "平衡二叉树",
+        "红黑树"
+      ]
+    },
+    {
+      "id": "tb0bb0892",
+      "subject": "复习",
+      "content": "错题复查 1 题（按知识点弱点）",
+      "planned_minutes": 8,
+      "actual_minutes": 0,
+      "done": false,
+      "knowledge_points": [],
+      "preview_for_tomorrow": []
+    },
+    {
+      "id": "tc94cf27a",
+      "subject": "护肤",
+      "content": "晨间护肤（修护+防御）：温和氨基酸洁面；可复美精华（全脸打底修护）；物理防晒霜（脸干可先涂清爽乳液再防晒）",
+      "planned_minutes": 10,
+      "actual_minutes": 0,
+      "done": true,
+      "knowledge_points": [],
+      "preview_for_tomorrow": []
+    },
+    {
+      "id": "t9bedf4af",
+      "subject": "护肤",
+      "content": "夜间护肤·修护日（修护屏障+淡印）：温和洁面；可复美精华全脸；377面霜全脸（停用阿达帕林和班赛，集中修护屏障、淡化痘印）",
+      "planned_minutes": 15,
+      "actual_minutes": 0,
+      "done": false,
+      "knowledge_points": [],
+      "preview_for_tomorrow": []
+    }
+  ],
+  "pomodoros": [],
+  "reflection": null
+}
