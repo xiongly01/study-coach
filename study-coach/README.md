@@ -108,21 +108,47 @@ study-coach/
 
 ### 考试配置
 
-通过 Web 初始设置页面或直接编辑 `data/config.json`：
+复制示例配置并根据需要修改：
+
+```bash
+cp data/config.example.json data/config.json
+```
+
+配置说明：
 
 ```json
 {
   "exam_date": "2026-12-26",
   "subjects": ["数学一", "英语一", "政治", "408"],
   "daily_study_hours": 8,
-  "target_school": "待定",
-  "target_major": "待定"
+  "target_school": "你的目标院校",
+  "target_major": "你的目标专业"
 }
 ```
 
 ### AI 服务（错题图片分析）
 
-设置环境变量：
+复制示例配置并填入你的凭证：
+
+```bash
+cp data/ai_secret.example.json data/ai_secret.json
+```
+
+编辑 `data/ai_secret.json`：
+
+```json
+{
+  "auth_token": "your-auth-token",
+  "base_url": "https://api.anthropic.com",
+  "model": "claude-sonnet-4-20250514"
+}
+```
+
+支持两种认证方式：
+- **Anthropic 原生 API**：使用 `api_key` 字段，`base_url` 留空或省略
+- **兼容端点（如智谱 GLM）**：使用 `auth_token` + 自定义 `base_url`
+
+也可以通过环境变量配置：
 
 ```bash
 # Linux / macOS
@@ -130,12 +156,9 @@ export ANTHROPIC_API_KEY="your-api-key"
 
 # Windows PowerShell
 $env:ANTHROPIC_API_KEY="your-api-key"
-
-# Windows CMD
-set ANTHROPIC_API_KEY=your-api-key
 ```
 
-设置后重启服务，错题本的"AI 分析并添加"功能即可使用。未配置 API Key 时，仍可手动添加错题。
+设置后重启服务，错题本的"AI 分析并添加"功能即可使用。未配置时，仍可手动添加错题。
 
 ## Web 界面说明
 
